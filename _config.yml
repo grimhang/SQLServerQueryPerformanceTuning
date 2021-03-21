@@ -4,11 +4,11 @@ lang: en
 description: Just another documentation theme compatible with GitHub Pages
 
 url     : "https://grimhang.github.io"
-baseurl : "SQLServerTuning"
+baseurl : "/SQLServerTuning"
 
 
-theme: jekyll-rtd-theme
-
+#theme: jekyll-rtd-theme
+remote_theme: rundocs/jekyll-rtd-theme
 # debug:
 #   compress: true
 #   dist: false
