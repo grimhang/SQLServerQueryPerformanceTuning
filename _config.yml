@@ -1,7 +1,7 @@
 title : "MS SQL Server tuning"
 name  : "Sungchool Park"
 lang: en
-description: Just another documentation theme compatible with GitHub Pages
+description: "MS SQL Server 2014 tuning의 번역본"
 
 url     : "https://grimhang.github.io"
 baseurl : "/SQLServerTuning"
