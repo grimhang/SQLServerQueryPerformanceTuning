@@ -1,6 +1,11 @@
-title: jekyll-rtd-theme
+title : "MS SQL Server tuning"
+name  : "Sungchool Park"
 lang: en
 description: Just another documentation theme compatible with GitHub Pages
+
+url     : "https://grimhang.github.io"
+baseurl : "SQLServerTuning"
+
 
 theme: jekyll-rtd-theme
 
