@@ -50,15 +50,15 @@ ORDER BY dows.wait_time_ms DESC;
 Microsoft에서 [대기상태](http://bit.ly/1e1I38f) 찾기.
 
 
-## 성능 모니터
-전통적으로 다음 4개의 하드웨어 리소스에 영향을 받는다.
-    * 메모리
-    * Disk I/O
-    * CPU
-    * Network
+## 하드웨어 리소스 병목
+일반적으로 다음 4개의 하드웨어 리소스에 영향을 받는다.
+* 메모리
+* Disk I/O
+* CPU
+* Network
 
-* 병목 알아내기
-리소스 병목간에는 서로 관계를 맺고 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상이 발생한다.
+### 병목 알아내기
+리소스간의 병목에는 서로 밀접한 관계가 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상이 발생한다.
 또한 시스템에 메모리가 부족하면 과도한 페이징을 유발하고 느린 디스크가 된다. 이때 CPU를 더 빠른 것으로 교체하는것은 약간 좋은 해결책이 될ㅅ ㅜ있지만 최적의 솔루션이 아니다. 이 경우 메모리 증설이 디스크/CPU의 압박을 줄여주기 때문에 좀더 적절한 해결방법이다.
     
     병목 식별 방법
@@ -158,16 +158,27 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 
 메모리를 분석할수 있는 성능 모니터 카운터
 
-| 오브젝트                  | Counter                   | 설명                                  |값                     |
-|:---:                      |:----                      |:----                                  |:----                  |
-| Memory                    | Availble Bytes            | Free physical Memory                  | OS 여유메모레         |
-|                           | Pages/sec                 | Rate of hard page faults              | 보통 평균 < 50. 베이스라인 참고   |
-|                           | Page Faults/sec           | Rate of total page faults             | 베이스라인 참고       |
-|                           | Page Input/sec            | Rate of input page faults             |                       |
-|                           | Page Output/sec           | Rate of output page faults                |                       |
-|                           | Paging File %Usage Peak   | Peak values in the memory paging file     |                       |
-|                           | Paging File: %Usag        | Rate of usage of the memory paging file   |                       |
-| SQLServer:Buffer Manager  | Buffer cache hit ratio    | Percentage of requests served out of buffer cache |                       |
-|                           | Page Life Expectancy      | 버퍼캐시에 머무루는 시간(초)              | 베이스라인  비교      |
+| 오브젝트                  | Counter                   | 설명                                          |값                                     |
+|:---:                      |:----                      |:----                                          |:----                                  |
+| Memory                    | Availble Bytes            | 물리적 메모리의 여유 용량                     | OS 여유메모레                         |
+|                           | Pages/sec                 | 초당 하드 페이지 폴트lts                      | 보통 평균 < 50. 베이스라인 참고       |
+|                           | Page Faults/sec           | 총 페이지 폴트                                | 베이스라인 참고                       |
+|                           | Page Input/sec            | Rate of input page faults                     |                                       |
+|                           | Page Output/sec           | Rate of output page faults                    |                                       |
+|                           | Paging File %Usage Peak   | Peak values in the memory paging file         |                                       |
+|                           | Paging File: %Usage        | Rate of usage of the memory paging file      |                                       |
+| SQLServer:Buffer Manager  | Buffer cache hit ratio    | 버퍼 캐시의 데이터를 쓰는 비율                |                                       |
+|                           | Page Life Expectancy      | 버퍼캐시에 머무루는 시간(초)                  | 베이스라인  비교                      |
+|                           | Checkpoint Pages/sec      | 체크포인트로 초당 디스크 쓰기 페이지수        | 평균 < 30. 단 베이스라인과 비교필요   |
+|                           | Lazy writes/sec           | 버퍼에서 날라간 더티 페이지수                 | 평균 < 20. 단 베이스라인과 비교필요    |
+| SQLServer:Memory Manager  | Memory Grants Pending     | 메모리 그랜트를 기다리는 프로세스 수          | 평균 0                                |
+|                           | Target Server Memory (KB) | SQL Server 가질수있는 최대 물리메모리 용량    | 물리적 메모리 크기에 근접해야         |
+|                           | Total Server Memory (KB)  | SQL Server의 현재 물리 메모리 용량            | Target Server Memory (KB)에 근접해야  |
+| Process                   | Private Bytes             | 다른 프로세스와 공유하지 않는 이 프로세스만의 메모리 사이즈 |         |
+메모리와 디스크 I/O 간에는 밀접한 관계가 있다. 메모리 문제라고 생각했던게 사실 디스크 I/O때문 일수도 있음. 
 
+* Available Bytes  
+    OS 메모리의 여유 용량. "Available Kbyte", "Available MByte" 도 사용가능. 이 카운터 수치가 너무 낮으면 안됨. 
+    SQL Server가 동적 메모리 관리를 사용하도록 구성되어 있다면 이 값은 Windows API에 의해 조절된다.
 
+* Pages/Sec, Page Faults/Sec    
