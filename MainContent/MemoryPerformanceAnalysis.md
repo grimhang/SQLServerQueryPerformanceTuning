@@ -161,12 +161,12 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 | 오브젝트                  | Counter                   | 설명                                          |값                                     |
 |:---:                      |:----                      |:----                                          |:----                                  |
 | Memory                    | Availble Bytes            | 물리적 메모리의 여유 용량                     | OS 여유메모레                         |
-|                           | Pages/sec                 | 초당 하드 페이지 폴트lts                      | 보통 평균 < 50. 베이스라인 참고       |
-|                           | Page Faults/sec           | 총 페이지 폴트                                | 베이스라인 참고                       |
-|                           | Page Input/sec            | Rate of input page faults                     |                                       |
-|                           | Page Output/sec           | Rate of output page faults                    |                                       |
-|                           | Paging File %Usage Peak   | Peak values in the memory paging file         |                                       |
-|                           | Paging File: %Usage        | Rate of usage of the memory paging file      |                                       |
+|                           | Pages/sec                 | 초당 하드 페이지 폴트 수                      | 보통 평균 < 50. 베이스라인 참고       |
+|                           | Page Faults/sec           | 총 페이지 폴트(소프트 + 하드)                 | 베이스라인 참고                       |
+|                           | Page Input/sec            | input page faults(디스크에서 읽기)            |                                       |
+|                           | Page Output/sec           | output page faults(디스크에 쓰기)             |                                       |
+|                           | Paging File %Usage Peak   | 메모리 페이징 파일 사용률   최대 수치         |                                       |
+|                           | Paging File: %Usage       | 메모리 페이징 파일 사용률                     |                                       |
 | SQLServer:Buffer Manager  | Buffer cache hit ratio    | 버퍼 캐시의 데이터를 쓰는 비율                |                                       |
 |                           | Page Life Expectancy      | 버퍼캐시에 머무루는 시간(초)                  | 베이스라인  비교                      |
 |                           | Checkpoint Pages/sec      | 체크포인트로 초당 디스크 쓰기 페이지수        | 평균 < 30. 단 베이스라인과 비교필요   |
@@ -212,3 +212,6 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 
     - process 단위
     > Process(sqlservr) -- Pages Faults/sec
+
+* Paging File %Usage, Page File %Usage
+윈도우의 모든 메모리는 물리적 메모리만이 아니다. 가상메모리(페이징파일)도 존재하는데 필요할때 물리적 메모리와 데이터를 스왑한다. 이 카운터로 얼마나 자주 스와핑이 발생하는지 이해할 수 있다. 보통은 SQL Server가 아니고 Windows OS에서 수행된다. 하지만 충분하지 않은 가상메모리는 SQL Server까지 영향을 미친다. 이 수치는 SQL Server상의 메모리 압박이 내부적 또는 외부적인지 이해하기 위해 수집된다. 외부의 메모리 압박이라면 SQL Server 이외의 어떤 요소가 문제인지 OS 단에서 확인할 필요가 있다.
