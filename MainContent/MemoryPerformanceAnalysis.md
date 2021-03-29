@@ -181,21 +181,6 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 
 
 
-|:---:                      |:----                      |:----                                          |:----                                  |
-| Memory                    | Availble Bytes            | 물리적 메모리의 여유 용량                     | OS 여유메모레                         |
-|                           | Pages/sec                 | 초당 하드 페이지 폴트 수                      | 보통 평균 < 50. 베이스라인 참고       |
-|                           | Page Faults/sec           | 총 페이지 폴트(소프트 + 하드)                 | 베이스라인 참고                       |
-|                           | Page Input/sec            | input page faults(디스크에서 읽기)            |                                       |
-|                           | Page Output/sec           | output page faults(디스크에 쓰기)             |                                       |
-|                           | Paging File %Usage Peak   | 메모리 페이징 파일 사용률   최대 수치         |                                       |
-|                           | Paging File: %Usage       | 메모리 페이징 파일 사용률                     |                                       |
-| SQLServer:Buffer Manager  | Buffer cache hit ratio    | 버퍼 캐시의 데이터를 쓰는 비율                |                                       |
-|                           | Page Life Expectancy      | 버퍼캐시에 머무루는 시간(초)                  | 베이스라인  비교                      |
-|                           | Checkpoint Pages/sec      | 체크포인트로 초당 디스크 쓰기 페이지수        | 평균 < 30. 단 베이스라인과 비교필요   |
-|                           | Lazy writes/sec           | 버퍼에서 날라간 더티 페이지수                 | 평균 < 20. 단 베이스라인과 비교필요    |
-| SQLServer:Memory Manager  | Memory Grants Pending     | 메모리 그랜트를 기다리는 프로세스 수          | 평균 0                                |
-|                           | Target Server Memory (KB) | SQL Server 가질수있는 최대 물리메모리 용량    | 물리적 메모리 크기에 근접해야         |
-|                           | Total Server Memory (KB)  | SQL Server의 현재 물리 메모리 용량            | Target Server Memory (KB)에 근접해야  |
 
 메모리와 디스크 I/O 간에는 밀접한 관계가 있다. 메모리 문제라고 생각했던게 사실 디스크 I/O때문 일수도 있음. 
 
