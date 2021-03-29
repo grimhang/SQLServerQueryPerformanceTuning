@@ -169,6 +169,11 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 |                           | Page Output/sec           | output page faults(디스크에 쓰기)             |                                       |
 | Paging File               | Paging File %Usage Peak   | 메모리 페이징 파일 사용률   최대 수치         |                                       |
 |                           | Paging File: %Usage       | 메모리 페이징 파일 사용률                     |                                       |
+| SQLServer:Buffer Manager  | Buffer cache hit ratio    | 버퍼 캐시의 데이터를 쓰는 비율                |                                       |
+
+
+
+
 
 |:---:                      |:----                      |:----                                          |:----                                  |
 | Memory                    | Availble Bytes            | 물리적 메모리의 여유 용량                     | OS 여유메모레                         |
