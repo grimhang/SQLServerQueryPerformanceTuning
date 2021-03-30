@@ -4,7 +4,7 @@ lang: en
 description: "MS SQL Server 2014 tuning의 번역본"
 
 url     : "https://grimhang.github.io"
-baseurl : "/SQLServerPerformanceTuning"
+baseurl : "/SQLServerQueryPerformanceTuning"
 
 
 #theme: jekyll-rtd-theme
