@@ -296,7 +296,7 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
     ![CI](image/CheckPointCapture2.png)  
     수치를 보면 알 수 있듯이 이 SQL Server는 쓰기 작업이 매우 많은 서버이다.  
     여기서 SQL 서버의 "recovery interval" 도 0이고 Database의  target_recovery_time_in_seconds 값도 0이니  서버쪽 옵션을 따라 60초마다 체크포인트가 발생하는 것을 알 수 있다.  
-    그리고 "Checkpoint Pages/Sec" 가 30을 넘기 때문에 메모리상의 더티 페이지가 많이 발생함을 알 수 있고 메모리와 디스크I/O의 성능 이슈가 발생할 가능성이 높다.  
+    "Checkpoint Pages/Sec" 가 30을 넘기 때문에 메모리상의 더티 페이지가 많이 발생하고 메모리와 디스크I/O의 성능 이슈가 발생할 가능성이 높다.  
     잘 안보이지만 파란색 선이 디스크의 평균 write 카운터이다. 정확히 1분마다 체크포인트 발생과 동시에 I/O가 치솟는 것을 알 수 있다.  
     1분마다 과도한 I/O 발생하는 것을 피하고 60초에 나누어 고르게 분산되도록 조정해야 한다. 
     target_recovery_in_seconds값을 60보다 차츰 줄여 가면서 I/O가 고르게 분포하게 되는 수치를 정하는게 목적이다.
