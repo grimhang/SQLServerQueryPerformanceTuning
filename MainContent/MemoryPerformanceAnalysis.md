@@ -293,7 +293,7 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
     2016버전부터는 데이터베이스 설정이 우선이고 기본값은 60초이다. 단 지금 예제 서버는 2014 버전이기 때문에 0으로 표시돤다.
     
 
-    ![CI](image/CheckPointCapture.png)  
+    ![CI](image/CheckPointCapture2.png)  
     수치를 보면 알 수 있듯이 이 SQL Server는 쓰기 작업이 매우 많은 서버이다.  
     여기서 SQL 서버의 "recovery interval" 도 0이고 Database의  target_recovery_time_in_seconds 값도 0이니  서버쪽 옵션을 따라 60초마다 체크포인트가 발생하는 것을 알 수 있다.  
     그리고 "Checkpoint Pages/Sec" 가 30을 넘기 때문에 메모리상의 더티 페이지가 많이 발생함을 알 수 있고 메모리와 디스크I/O의 성능 이슈가 발생할 가능성이 높다.  
