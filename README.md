@@ -1,8 +1,9 @@
 # MS SQL Server Query Performance Tuning
 
 
-이 문서는 Grant Fritchey의 SQL Server Query Performance Tuning을 번역한것 것을 바탕으로 하였다.  
-아무래도 SQL Server 2014 버전으로 쓰여져 있어서 그 중 오래된 내용을 삭제하고 최신 내용으로 대체하였으며 일부는 나와 견해가 틀린것들이 있었는데 내 생각을 우선으로 대체하였다. 한 원본 책 내용 80%, 오래되거나 내것으로 바꾼게 20%쯤.
+이 문서는 Grant Fritchey의 SQL Server Query Performance Tuning을 번역한 것을 바탕으로 하였다.  
+원본책이 SQL Server 2014 버전으로 쓰여져 있어서 오래된 내용을 삭제 후 최신 내용으로 바꾸었고 나와 견해가 틀린 일부는 내 생각 위주로 대체하였다.  
+원본 책 내용 80%, 내가 바꾼거나 추가한 게 20%쯤.
 
 매우 좋은 책이다.  
 내가 20년동안 머리속에서만 생각하고 정리하지 않았던 것들을 저자가 대신 모두 정리해 준 느낌이다.  
