@@ -341,7 +341,7 @@ ORDER BY count(page_id) DESC
                     또한 SQL Server의 메모리를 OS에 반환하는 것도 임무 중 하나.
 ```
 
-![캡처](image/LazyWrite.png)  
+![캡처](image/LazyWrite.PNG)  
 이 SQL Server는 현재 매우 좋지 않은 상황이다.  
 빨간색 원에서 PLE 수치가 0으로 떨어지는데 잘 보면 Lazy Write도 순간적으로 80까지 기록.  
 20이상이면 문제가 있다고 했는데 80까지 기록했으니 안 좋다. PLE 다운의 원인을 해결하면 Lazy Write도 정상화 될 것으로 판단 할 수 있다.
