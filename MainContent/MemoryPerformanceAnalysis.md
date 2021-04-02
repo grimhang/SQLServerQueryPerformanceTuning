@@ -359,3 +359,111 @@ ORDER BY count(page_id) DESC
        즉 병목현상이 발생
     f. 겨우 겨우 디스크에 기록하게 되며 더티 페이지까지 버퍼 캐시에서 방 빼기 완료.
     g. 신규 쿼리를 위한 새로운 데이터들이 버퍼 캐시에 올라오기 때문에 PLE 값도 서서히 오르기 시작
+
+### * Memory Grants Pending
+SQL Server 메모리를 할당 받기 위해 대기하고 있는 sql 세션들의 갯수. 이 값이 높으면 버퍼 메모리가 부족하다는 뜻이다.
+정상 상태의 대부분 프로덕션 서버에서는 메모리 버퍼 캐시가 부족하지 않기 때문에 이 값이 계속 0으로 표시된다.
+하지만 메모리 부족상태에가 되면 Lazy Write가 메모리를 비워주는 것을 기다려야 하는데 이때 수치가 상승하게 된다.
+
+실시간으로 이 값을 판단하는 또 다른 방법은 sys.dm_exec_query_memory_grants(메모리 부여를 요청하고 메모리 부여 대기하고 있는 모든 쿼리 정보) DMV를 확인 해 보는 것이다. grant_time 컬럼값이 null이면 여전히 메모리 할당을 기다리고 있다는 표시.
+쿼리들이 실행 대기하고 상태, 보통 "쿼리 타임아웃"을 트러블슈팅하기 위해 사용된다.
+```sql
+다음 시나리오 확인
+    a. sys.dm_os_memory_clerks, sys.dm_os_sys_info 를 통해 전체 시스템 메모리 상태 확인
+    b. sys.dm_os_memory_clerks의 type = 'MEMORYCLERK_SQLQERESERVATIONS' 에서 해당 쿼리 실행 메모리 예약을 확인
+    c. sys.dm_exec_query_grants에서 대기하고 있는 쿼리 확인
+
+        SELECT *
+        FROM sys.dm_exec_query_grants
+        WHERE grant_time is null
+        
+        대부분의 대기 형식이 RESOURCE_SEMAPHORE
+
+    d. sys.dm_exec_query_plan 을 사용하여 tsql으로 메모리 부여를 사용하는 쿼리의 캐시 검색
+
+        -- retrieve every query plan from the plan cache  
+        USE master;  
+        GO  
+        SELECT * FROM sys.dm_exec_cached_plans cp CROSS APPLY sys.dm_exec_query_plan(cp.plan_handle);  
+        GO 
+
+    e. sys.dm_exec_requests 를 사용하여 메모리 사용량이 많은 쿼리 자세히 검색  
+
+        --Find top 5 queries by average CPU time  
+        SELECT TOP 5 total_worker_time/execution_count AS [Avg CPU Time],  
+        plan_handle, query_plan   
+        FROM sys.dm_exec_query_stats AS qs  
+        CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle)  
+        ORDER BY total_worker_time/execution_count DESC;  
+        GO  
+    
+    f. 런어웨이 쿼리가 의심되는 경우 sys.dm_exec_query_plan의 실행 계획과 sys.dm_exec_sql_text의 일괄 처리 텍스트를 검사합니다.
+```
+
+참고      
+[sys.dm_exec_query_grants](https://docs.microsoft.com/ko-kr/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver15)
+
+### * Target Server Memory (KB) and Total Server Memory (KB)
+Target Server Memory (KB)는 SQL Server가  사용하길 원하는 동적 메모리의 양이다. 이 카운터는 현재 SQL Server에 할당된 메모리 용량이며 보통의 전용 SQL Server라면 매우 높은게 일반적.
+Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면 
+    - SQL Server의 메모리 요구량이 낮거나
+    - max server memory 구성 값이 매우 낮게 세팅되어 있는 경우이다.
+    - SQL Server가 시동중
+
+시동중인 SQL Server은 더 많은 데이터 페이지들이 메모리로 올려지면서 메모리 할당량을 동적으로 증가시키고 있는 상태.
+
+대부분의 경우 5,000이상의 여유 페이지들이 존재를 확인함으로써 SQL Server의 메모리 요구사항이 낮음을 확인할수 있다. 역시 sys.dm_os_ring_buffers DMO를 통해 메모리 상태를 직접적으로 체크할수 있다. 이 dmv는 메모리 할당 정보를 리턴. 
+
+## 추가적인 메모리 모니터링 도구
+
+### DBCC MEMORYSTATUS
+
+### 동적 관리 객체(Dynamic Management Objects)
+
+#### * sys.dm_os_memory_brokers
+#### * sys.dm_os_memory_cleaks
+#### * sys.dm_os_ring_buffers
+    표
+
+#### * sys.dm_db_xtp_table_memory_stats
+
+#### * sys.dm_xtp_system_memory_consumers
+
+## 메모리 병목 해결 방법
+    다이아그램
+
+### 어플리케이션 워크로드 최적화
+
+### SQL Server에 메모리 할당량 추가
+
+### In-Memory 테이블을 표준 저장장치로 돌리기
+
+### 시스템 메모리 추가
+
+### 데이터 압축
+
+### 조각화 지정
+
+## 요약
+
+
+=======
+
+![캡처](image/LazyWrite.PNG)  
+이 SQL Server는 현재 매우 좋지 않은 상황이다.  
+빨간색 원에서 PLE 수치가 0으로 떨어지는데 잘 보면 Lazy Write도 순간적으로 80까지 기록.  
+20이상이면 문제가 있다고 했는데 80까지 기록했으니 안 좋다. PLE 다운의 원인을 해결하면 Lazy Write도 정상화 될 것으로 판단 할 수 있다.
+
+    위의 상황을 쉽게 설명
+    a. 대량의 데이터 작업이 필요한 신규 쿼리가 실행이 된다.
+    b. SQL Server는 디스크에서 대량의 신규 데이터를 퍼 올리는데 메모리 버퍼 캐시의 빈 공간이 여의치 않다.
+    c. SQL Server는 버퍼 캐시에 입주하고 있는 페이지들 중에서 오래된 놈들 위주로 빨리 방빼라고 재촉을 한다.
+    d. 이 때 PLE 값이 급격히 하락
+    e. 클린 페이지들이야 동일 원본이 디스크에 있기 때문에 버퍼 캐시에서만 삭제하면 되지만 더티 페이지들은 checkpoint가 아직
+       안 왔기 때문에 일단 하드 디스크에 쓰는 작업을 먼저 수행해야 한다.
+    f. 이 때 디스크 쓰기 I/O가 급증하고 쓰기 작업은 cpu도 많이 소모하기 때문에 디스크, CPU 상황까지 안좋게 된다.
+       Lazy Write/sec 도 급증
+    g. 디스크 I/O는 메모리에 비해 속도가 많이 느리기 때문에 SQL Server는 재촉을 하지 디스크 I/O는 느리지 속이 타는 상황이 발생.
+       즉 병목현상이 발생
+    f. 겨우 겨우 디스크에 기록하게 되며 더티 페이지까지 버퍼 캐시에서 방 빼기 완료.
+    g. 신규 쿼리를 위한 새로운 데이터들이 버퍼 캐시에 올라오기 때문에 PLE 값도 서서히 오르기 시작    
