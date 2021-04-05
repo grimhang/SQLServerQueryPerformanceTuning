@@ -123,13 +123,14 @@ Microsoft에서 [대기상태](http://bit.ly/1e1I38f) 찾기.
 데이터 페이지, 플랜 캐시 페이지, 프리 페이지와 같은 다양한 페이지 존재
 SQL server는 동적으로 메모리 풀 크기를 늘리거나 줄임.
 
-![CI](image/MemoryConfig2.png)  
+<img src = "image/MemoryConfig2.png" width="60%">   
+
 SSMS에서 세팅방법 서버등록정보/메모리
 
 
 동적 메모리 범위 두개의 구성 정보.  
-    - Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다. 
-    - Maximum(MB) : "max sserver memory". 메모리 풀의 희망하는 최대 값 . 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
+    * Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다.
+    * Maximum(MB) : "max sserver memory". 메모리 풀의 희망하는 최대 값 . 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
 
     보통 Min 값은 디폴트로 놓고 max값만 조절한다.
 
