@@ -33,13 +33,14 @@ SQL Server의 페이지와는 용어는 같이만 다른 개념이니 주의해�
 
 C언어를 할 줄 알면 VirtualAlloc으로 메모리 예약, 할당 받고 VirtualFree로 물리적 메모리를 해제하는데 익숙할 것이다.
 
-또 하나 알아두어야 할것은 프로그램의 물리적 메모리 뿐만 아니라 가상메모리(페이징 파일:pagefile.sys)도 사용할 수 있다. SQL Server도 시작할때 마음속의 가상공간(64비트일때 64Ebyte)을 할당받는데 물리적 메모리 + 가상메모리 를 합친 공간이다.
-하지만 SQL Server에 익숙하시다면 Lock pages in Memory 라는 옵션에 익숙할 것이다. 
+또 하나 알아두어야 할것은 프로그램의 물리적 메모리 뿐만 아니라 가상메모리(페이징 파일:pagefile.sys)도 사용할 수 있다는 것이다. SQL Server도 시작할때 마음속의 가상공간(64비트일때 64Ebyte)을 할당받는데 물리적 메모리 + 가상메모리 를 합친 공간이다.  
+
+SQL Server에 익숙하시다면 Lock pages in Memory 라는 옵션에 익숙할 것이다.  
 무슨 뜻이냐면 SQL Server도 OS위에서 작동하는 프로그램이기 때문에 물리적 메모리의 공간이 부족하면 가상메모리쪽으로 데이터 스왑을 하게 되는데 이때 엄청난 속도 저하가 발생한다. 대부분의 SQL Server는 대용량의 메모리를 가지고 있고 자체적으로 lazy writer와 같은 기능을 가지고 있기 때문에 엄청나게 느린 페이징 스왑 작업을 못하게 해야 한다. 그래서 pages 들을 스왑하지 못하게 memory안에 데이터를 Lock 하는것이다. 여기서 페이지는 메모리의 페이지이다.
 밑에서 DBCC MemoryStatus 에서 좀더 자세히 설명한다.
 
 <img src = "image/TaskManager.png" width="70%">  
-작업 관리자에서는 Commit Size라는 줄에서 실제 SQL Server가 차지하고 있는 메모리 용량 을 볼수 있다.
+작업 관리자에서는 Commit Size라는 줄에서 실제 SQL Server가 차지하고 있는 메모리 용량 을 볼수 있다. 여기의 commit 도 메모리 쪽
 ***
 ## 2.1 성능 모니터
 성능 모니터는 CPU, Memory, Disk, Network의 자세한 활동 데이터 측정 가능하다.
