@@ -3,8 +3,8 @@ sort: 2
 ---
 
 # Memory Performance Analysis
-쿼리는 처리되기 전에 메모리에 데이터를 먼저 올려놓는다. 데이터를 수정하는 경우에도 먼저 변경점도 메모리의 데이터에 적용  
-대부분의 데이터 연산 작업들은 메모리에서 주로 이뤄지기 때문에 속도 상 유리한 점이 있다.  
+쿼리는 데이터를 처리 전에 메모리에 먼저 먼저 올려놓고 작업하게 된다. 조회뿐 아니라 데이터 수정하는 경우에도 데이터를 먼저 메모리에 적재 후 수정하고 디스크로 내려보낸다. 
+이렇게 대부분의 데이터 연산 작업들은 메모리를 통해서 이뤄지기 때문에 충분한 이해가 필요하다.
 
 이번장에서 다룰 주제
 
@@ -14,10 +14,36 @@ sort: 2
 * SQL Server 와 윈도우 OS에서 사용되어지는 메모리를 관찰하고 측정하는 방법
 * 메모리 병목의 가능한 해결책
 
+----------------------------
+
+SQL Server의 메모리를 조사하기 전에 먼저 OS 메모리 할당을 먼저 알면 매우 도움이 된다.  
+
+아쉽게도 Windows OS와 SQL Server는 동음이의어가 많아서 헷갈리게 되는 경우가 많다. 어느 쪽 용어인지 확실히 이해해야 한다.
+OS쪽 메모리 먼저 정리하고 SQL Server 로 넘어가면 매우 큰 도움이 된다. 이 문서에도 용어의 틀린점과 양쪽 메모리의 할당과 서로 연관된 구조를 차례대로 설명한다.
+
+먼저 우리 SQL Server는 64비트 머신이지만 32bit가 설명이 쉬우니 32bit라고 가정하자.
+
+일반적인 프로그램이 실행되어 프로세스라고 불리우게 되면 유저모드 2GB, 커널모드 2GB, 총 4GB 메모리를 사용할 수 있다.
+하지만 물리적인 메모리 용량은 한정되어 있으니 실제 할당은 하지 않고 마음속에만 4GB의 가상의 공간을 미리 생각하고 있는것이다.
+실제 메모리의 공간이 필요하게 될때만 페이지(4KB) 단위로 실제 메모리를 할당 받는다. 여기서 첫번째 페이지란 용어때문에 헷갈린다.
+SQL Server의 페이지와는 용어는 같이만 다른 개념이니 주의해야 한다. SQL Server의 페이지는 8KB단위이고 메모리의 페이지는 4KB단위.
+
+물리적인 메모리를 4KB 페이지 단위로 할당 받으면 이때를 commit 이라고 한다. 정확히는 내 마음속의 가상 주소와 실제 메모리 주소를 매핑하는것이지만
+이해 어렵기 때문에 넘어가자. 그리고 또 SQL Server의 commit과 동음이의어니까 조심. 동음이의어가 많이 나오니 힘들다.
+
+C언어를 할 줄 알면 VirtualAlloc으로 메모리 예약, 할당 받고 VirtualFree로 물리적 메모리를 해제하는데 익숙할 것이다.
+
+또 하나 알아두어야 할것은 프로그램의 물리적 메모리 뿐만 아니라 가상메모리(페이징 파일:pagefile.sys)도 사용할 수 있다. SQL Server도 시작할때 마음속의 가상공간(64비트일때 64Ebyte)을 할당받는데 물리적 메모리 + 가상메모리 를 합친 공간이다.
+하지만 SQL Server에 익숙하시다면 Lock pages in Memory 라는 옵션에 익숙할 것이다. 
+무슨 뜻이냐면 SQL Server도 OS위에서 작동하는 프로그램이기 때문에 물리적 메모리의 공간이 부족하면 가상메모리쪽으로 데이터 스왑을 하게 되는데 이때 엄청난 속도 저하가 발생한다. 대부분의 SQL Server는 대용량의 메모리를 가지고 있고 자체적으로 lazy writer와 같은 기능을 가지고 있기 때문에 엄청나게 느린 페이징 스왑 작업을 못하게 해야 한다. 그래서 pages 들을 스왑하지 못하게 memory안에 데이터를 Lock 하는것이다. 여기서 페이지는 메모리의 페이지이다.
+밑에서 DBCC MemoryStatus 에서 좀더 자세히 설명한다.
+
+<img src = "image/TaskManager.png" width="70%">  
+작업 관리자에서는 Commit Size라는 줄에서 실제 SQL Server가 차지하고 있는 메모리 용량 을 볼수 있다.
 ***
 ## 2.1 성능 모니터
-CPU, Memory, Disk, Network의 자세한 활동 데이터 측정 가능.  
-또는 SQL Server 2014에서는 추가적인 기능을 성능 모니터를 통해 사용 가능.  
+성능 모니터는 CPU, Memory, Disk, Network의 자세한 활동 데이터 측정 가능하다.
+또한 SQL Server 2014에서는 추가적인 기능을 성능 모니터를 통해 사용 가능하기도 한다.  
 단 VM에서 측정하는 값은 논리적인 VM 각각의 데이터이기 때문에 물리적 서버의 데이터가 아니다. 정확한 데이터가 아니기 때문에 주의.
 
 시스템 실시간 활동데이터를 그래프로 바로 볼 수도 있고, data collector set 이라는 파일로 저장할 수도 있다.  
@@ -50,27 +76,26 @@ Microsoft에서 [대기상태](http://bit.ly/1e1I38f) 찾기.
 
 
 ## 2.3 하드웨어 리소스 병목
-일반적으로 다음 4개의 하드웨어 리소스에 영향을 받는다.
+일반적으로 다음 4개의 하드웨어 리소스를 본다.
 * 메모리
 * Disk I/O
 * CPU
 * Network
 
 ### 병목 알아내기
-리소스간의 병목에는 서로 밀접한 관계가 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상이 발생한다.
-또한 시스템에 메모리가 부족하면 과도한 페이징을 유발하고 느린 디스크가 된다. 이때 CPU를 더 빠른 것으로 교체하는것은 약간 좋은 해결책이 될ㅅ ㅜ있지만 최적의 솔루션이 아니다. 이 경우 메모리 증설이 디스크/CPU의 압박을 줄여주기 때문에 좀더 적절한 해결방법이다.
+리소스간의 병목에는 서로 밀접한 관계가 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상도 유발한다.
+또한 시스템에 메모리가 부족하면 과도한 페이징을 유발하고 디스크에 엄청난 압박이 가해진다. 이때 CPU를 더 빠른 것으로 교체하는것은 약간의 좋은 해결책이 될수 있겠지만 최적의 방법은 아니다. 이 경우 메모리 증설이 디스크/CPU의 압박을 줄여주기 때문에 좀더 적절한 해결방법이다.
     
     병목 식별 방법
     - 가장좋은 방법 : 처리를 완료하기 위해 한 리소스가 다른 리소스를 기다리는지 알아내는 법
     - 두번째 방법 : 응답시간과 용량을 조사해 알아내기
-         예를 들면 벤더가 제시한 대역폭과 용량을 알ㅁ기 disk sec/transfer.  그 이상을 넘으면 과도한 로드라고 할수 있다. 
+         예를 들면 벤더가 제시한 대역폭과 용량을 알기. 그 이상을 넘으면 과도한 로드라고 할수 있다. 
 
-    모든 리소스가 쿼리레벨에서 조회 가능한 특별한 카운터를 가지고 있는건 아니지만 리소스의 과도한 사용을 표시하는 카운터는 대부분 존재.
+    모든 하드웨어 리소스가 쿼리로 조회 가능한 성능 카운터들을 가지고 있는건 아니지만 사용을 표시하는 카운터는 대부분의 리소스에 존재.
 
     예) 메모리는 그러한 카운터는 없지만 큰 숫자의 하드 페이지 폴트는 물리적 메모리의 한계가 부족하다는 것을 의미. (pages/sec, page faults/sec) 
 
-    CPU나 디스크과 같은 다른 리소스들도 대부분 queuing 수치 카운터가 존재한다.
-    예) SQL Server의 Page Life Expectancy는 디스크의 데이터를 메모리의 버퍼캐시로 올려놓고 유지하는 시간(단위:초)을 말하는데 이 값이 작다면 SQL Server의 메모리를 적절하게 이용하지 못한다는 얘기이고 메모리 병목이라고 판단할수 있는 것이다.
+    CPU나 디스크과 같은 다른 리소스들도 대부분 queue 수치 카운터가 존재한다.
 
 * 병목 해결 방법
 일단 병목을 발견하면 다음 두가지 방법중 하나를 선택할 수 있다.
@@ -102,9 +127,18 @@ SSMS에서 세팅방법 서버등록정보/메모리
 
 
 동적 메모리 범위는 두개의 구성 정보. Minimum server Memory(MB), Maximum server memory(MB)
-    - Minimum(MB) : "min server memory"은 메모리 풀의 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다. SQL Server는 min server memory 값으로 시작하지 않고 필요에 따라 덩적으로 메모리 커밋. 
+    - Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다. 
+    - Maximum(MB) : "max sserver memory". 메모리 풀의 희망하는 최대 값 . 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
 
-    - Maximum(MB) : "max sserver memory" 메모리 풀의 최대 증가를 제한하는 상한 값 역할. 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
+    보통 Min 값은 디폴트로 놓고 max값만 조절한다.
+
+    a. OS 메모리 용량이 128GB일때 Min 을 1GB 로 잡고 Max를 110GB로 잡는다면
+    b. 처음 SQL Server가 기동되면 매우 적은 몇MB상태일 것이다.
+    c. 사용이 늘게되면 점점 메모리 사용이 늘게 될것이고 어느 순간 1GB를 넘는다
+    d. 점점 사용이 늘다가 최대값인 110GB까지 사용하게 되는 날도 있다.
+    e. 최대 110GB 는 넘지 않다가 서비스가 망해서 SQL Server도 점점 사용량이 준다.
+    f. 하지만 1GB 가 min이기 때문에 그 이하로는 떨어지지 않는다
+
 
 Microsoft는 동적 메모리 권장을 사용ㅏ도록 권장. min server memory는 0. Max server memory는 OS에 약간의 memory 허용치를 놔두게.
 8~16GB 메모리 일 경우 OS메모리는 2~4GB 놔두게. 일반적으로는 os메모리가 16GB 늘때마다 4GB는 OS에 여유로 남긴다.
@@ -134,6 +168,7 @@ GO
 EXEC sp_configure 'min server memory';
 EXEC sp_configure 'max server memory';
 ```
+
 | name                   | minimum  | maximum       |config_value   |run_value  |
 |:---:                   |:----:    |:----          |:----          |:----      |
 | min server memory (MB) | 0        | 2147483647    | 0             | 16        |
@@ -162,7 +197,6 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 |:---                       |:----                      |:----                                          |:----                                  |
 | Memory                    | Availble Bytes            | 물리적 메모리의 여유 용량                     | 102400                                |
 |                           | Pages/sec                 | 초당 하드 페이지 폴트 수                      | 보통 평균 < 50. 베이스라인 참고       |
-|                           | Page Faults/sec           | 총 페이지 폴트(소프트 + 하드)                 | 베이스라인 참고                       |
 |                           | Page Faults/sec           | 총 페이지 폴트(소프트 + 하드)                 | 베이스라인 참고                       |
 |                           | Page Input/sec            | input page faults(디스크에서 읽기)            |                                       |
 |                           | Page Output/sec           | output page faults(디스크에 쓰기)             |                                       |
@@ -361,7 +395,7 @@ ORDER BY count(page_id) DESC
     g. 신규 쿼리를 위한 새로운 데이터들이 버퍼 캐시에 올라오기 때문에 PLE 값도 서서히 오르기 시작
 
 ### * Memory Grants Pending
-SQL Server 메모리를 할당 받기 위해 대기하고 있는 sql 세션들의 갯수. 이 값이 높으면 버퍼 메모리가 부족하다는 뜻이다.
+SQL Server 메모리를 할당 받기 위해 대기하고 있는 그 시점의 sql 세션들 갯수. 이 값이 높으면 버퍼 메모리가 부족하다는 뜻이다.
 정상 상태의 대부분 프로덕션 서버에서는 메모리 버퍼 캐시가 부족하지 않기 때문에 이 값이 계속 0으로 표시된다.
 하지만 메모리 부족상태에가 되면 Lazy Write가 메모리를 비워주는 것을 기다려야 하는데 이때 수치가 상승하게 된다.
 
@@ -371,10 +405,10 @@ SQL Server 메모리를 할당 받기 위해 대기하고 있는 sql 세션들�
 다음 시나리오 확인
     a. sys.dm_os_memory_clerks, sys.dm_os_sys_info 를 통해 전체 시스템 메모리 상태 확인
     b. sys.dm_os_memory_clerks의 type = 'MEMORYCLERK_SQLQERESERVATIONS' 에서 해당 쿼리 실행 메모리 예약을 확인
-    c. sys.dm_exec_query_grants에서 대기하고 있는 쿼리 확인
+    c. sys.dm_exec_query_memory_grants 대기하고 있는 쿼리 확인
 
         SELECT *
-        FROM sys.dm_exec_query_grants
+        FROM sys.dm_exec_query_memory_grants
         WHERE grant_time is null
         
         대부분의 대기 형식이 RESOURCE_SEMAPHORE
@@ -384,7 +418,8 @@ SQL Server 메모리를 할당 받기 위해 대기하고 있는 sql 세션들�
         -- retrieve every query plan from the plan cache  
         USE master;  
         GO  
-        SELECT * FROM sys.dm_exec_cached_plans cp CROSS APPLY sys.dm_exec_query_plan(cp.plan_handle);  
+        SELECT * FROM sys.dm_exec_cached_plans cp
+        CROSS APPLY sys.dm_exec_query_plan(cp.plan_handle);  
         GO 
 
     e. sys.dm_exec_requests 를 사용하여 메모리 사용량이 많은 쿼리 자세히 검색  
@@ -396,27 +431,71 @@ SQL Server 메모리를 할당 받기 위해 대기하고 있는 sql 세션들�
         CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle)  
         ORDER BY total_worker_time/execution_count DESC;  
         GO  
-    
-    f. 런어웨이 쿼리가 의심되는 경우 sys.dm_exec_query_plan의 실행 계획과 sys.dm_exec_sql_text의 일괄 처리 텍스트를 검사합니다.
+
 ```
 
 참고      
-[sys.dm_exec_query_grants](https://docs.microsoft.com/ko-kr/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver15)
+[sys.dm_exec_query_memory_grants](https://docs.microsoft.com/ko-kr/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver15)
 
 ### * Target Server Memory (KB) and Total Server Memory (KB)
-Target Server Memory (KB)는 SQL Server가  사용하길 원하는 동적 메모리의 양이다. 이 카운터는 현재 SQL Server에 할당된 메모리 용량이며 보통의 전용 SQL Server라면 매우 높은게 일반적.
+Target Server Memory (KB) :  SQL Server가  사용하길 원하는 동적 메모리의 양
+Total Server Memory(KB) : 현재 SQL Server에 할당된 메모리 용량이며 보통의 전용 SQL Server라면 매우 높은게 일반적.
+
 Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면 
     - SQL Server의 메모리 요구량이 낮거나
     - max server memory 구성 값이 매우 낮게 세팅되어 있는 경우이다.
     - SQL Server가 시동중
 
-시동중인 SQL Server은 더 많은 데이터 페이지들이 메모리로 올려지면서 메모리 할당량을 동적으로 증가시키고 있는 상태.
 
-대부분의 경우 5,000이상의 여유 페이지들이 존재를 확인함으로써 SQL Server의 메모리 요구사항이 낮음을 확인할수 있다. 역시 sys.dm_os_ring_buffers DMO를 통해 메모리 상태를 직접적으로 체크할수 있다. 이 dmv는 메모리 할당 정보를 리턴. 
+5000 이상의 대량 여유 페이지들이 존재하는지 확인하여 낮은 메모리 요구상태인지 알 수 있다.
 
 ## 추가적인 메모리 모니터링 도구
+상당히 많은 결과셋이 나오고 어떤 결과들은 NUMA 노드별로 표시된다. 이중 기본적인 2개의 결과만 살펴보자
+
+
+
+
 
 ### DBCC MEMORYSTATUS
+
+| Process/System Counts             | Value                         |
+|:---                               |:----                          |
+| Available Physical Memory         | 22234664960                   |
+| Available Virtual Memory          | 22234661393228433080324960    |
+| Available Paging File             | 21294985216                   |
+| Working Set                       | 4612734976                    |
+| Percent of Committed Memory in WS | 100                           |
+| Page Faults                       | 434072664                     |
+| System physical memory high       | 1                             |
+| System physical memory low        | 0                             |
+| Process physical memory low       | 0                             |
+| Process virtual memory low        | 0                             |
+	
+첫번째 결과를 해석하면 다음과 같다.
+    Available Physical Memory : 현재 여유 용량은 22234664960(약22GB)
+    System physical memory high : 시스템의 물리적 메모리 용량이 많아서 1
+    Working Set  : 메모리 작업집합은 4.5GB
+
+두번째 결과는 다음과 같다
+| Memory Manager            | KB            |
+|:---                       |:----          |
+|VM Reserved	            | 1380519060    |
+|VM Committed	            | 5353596       |
+|Locked Pages Allocated	    | 99504004      |
+|Large Pages Allocated	    | 858112        |
+|Emergency Memory	        | 1024          |
+|Emergency Memory In Use    | 16            |
+|Target Committed	        | 104857600     |
+|Current Committed	        | 104857600     |
+|Pages Allocated	        | 88486280      |
+|Pages Reserved	            | 3888          |
+|Pages Free	                | 166416        |
+|Pages In Use	            | 25631320      |
+|Page Alloc Potential	    | 73983400      |
+|NUMA Growth Phase	        | 2             |
+|Last OOM Factor	        | 0             |
+|Last OS Error	            | 0             |
+
 
 ### 동적 관리 객체(Dynamic Management Objects)
 
@@ -448,22 +527,3 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 
 
 =======
-
-![캡처](image/LazyWrite.PNG)  
-이 SQL Server는 현재 매우 좋지 않은 상황이다.  
-빨간색 원에서 PLE 수치가 0으로 떨어지는데 잘 보면 Lazy Write도 순간적으로 80까지 기록.  
-20이상이면 문제가 있다고 했는데 80까지 기록했으니 안 좋다. PLE 다운의 원인을 해결하면 Lazy Write도 정상화 될 것으로 판단 할 수 있다.
-
-    위의 상황을 쉽게 설명
-    a. 대량의 데이터 작업이 필요한 신규 쿼리가 실행이 된다.
-    b. SQL Server는 디스크에서 대량의 신규 데이터를 퍼 올리는데 메모리 버퍼 캐시의 빈 공간이 여의치 않다.
-    c. SQL Server는 버퍼 캐시에 입주하고 있는 페이지들 중에서 오래된 놈들 위주로 빨리 방빼라고 재촉을 한다.
-    d. 이 때 PLE 값이 급격히 하락
-    e. 클린 페이지들이야 동일 원본이 디스크에 있기 때문에 버퍼 캐시에서만 삭제하면 되지만 더티 페이지들은 checkpoint가 아직
-       안 왔기 때문에 일단 하드 디스크에 쓰는 작업을 먼저 수행해야 한다.
-    f. 이 때 디스크 쓰기 I/O가 급증하고 쓰기 작업은 cpu도 많이 소모하기 때문에 디스크, CPU 상황까지 안좋게 된다.
-       Lazy Write/sec 도 급증
-    g. 디스크 I/O는 메모리에 비해 속도가 많이 느리기 때문에 SQL Server는 재촉을 하지 디스크 I/O는 느리지 속이 타는 상황이 발생.
-       즉 병목현상이 발생
-    f. 겨우 겨우 디스크에 기록하게 되며 더티 페이지까지 버퍼 캐시에서 방 빼기 완료.
-    g. 신규 쿼리를 위한 새로운 데이터들이 버퍼 캐시에 올라오기 때문에 PLE 값도 서서히 오르기 시작    
