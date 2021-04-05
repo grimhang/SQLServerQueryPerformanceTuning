@@ -479,6 +479,7 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
     Working Set  : 메모리 작업집합은 4.5GB
 
 두번째 결과는 다음과 같다
+
 | Memory Manager            | KB            |
 |:---                       |:----          |
 |VM Reserved	            | 1380519060    |
@@ -498,6 +499,13 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 |Last OOM Factor	        | 0             |
 |Last OS Error	            | 0             |
 
+두번째 결과를 해석하면 
+    * Locked Pages Allocated : 이 서버는 Lock page in Memory 설정을 해 놓은 서버이고
+                                현재 99GB가 Locked pages로 메모리상에 존재
+    * Target Committed : 104GB. 여기서 메모리 할당의 commit.  성능 카운터의 Target Server memory
+    * Current Committed : 104GB. 성능 카운터의 Total Server memory                                
+
+그 외의 다른 결과셋은 MSDB 찾아보자
 
 ### 동적 관리 객체(Dynamic Management Objects)
 
