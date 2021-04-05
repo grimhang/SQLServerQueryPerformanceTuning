@@ -127,7 +127,7 @@ SQL server는 동적으로 메모리 풀 크기를 늘리거나 줄임.
 SSMS에서 세팅방법 서버등록정보/메모리
 
 
-동적 메모리 범위는 두개의 구성 정보. Minimum server Memory(MB), Maximum server memory(MB)
+동적 메모리 범위 두개의 구성 정보.  
     - Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다. 
     - Maximum(MB) : "max sserver memory". 메모리 풀의 희망하는 최대 값 . 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
 
@@ -141,15 +141,18 @@ SSMS에서 세팅방법 서버등록정보/메모리
     f. 하지만 1GB 가 min이기 때문에 그 이하로는 떨어지지 않는다
 
 
-Microsoft는 동적 메모리 권장을 사용ㅏ도록 권장. min server memory는 0. Max server memory는 OS에 약간의 memory 허용치를 놔두게.
-8~16GB 메모리 일 경우 OS메모리는 2~4GB 놔두게. 일반적으로는 os메모리가 16GB 늘때마다 4GB는 OS에 여유로 남긴다.
+Microsoft는 동적 메모리 권장을 사용하도록 권장.  
+    * min server memory는 0.
+    * Max server memory는 OS에 약간의 memory 허용치를 놔두게.
+        8~16GB 메모리 일 경우 OS메모리는 2~4GB 여유. 일반적으로는 5GB ~ 10GB 정도 빼준다.
 
-최소 서버 메모리가 0 인 SQL Server에 동적 메모리 구성을 사용하는 것이 좋습니다.
+최소 서버 메모리가 0 인 SQL Server에 동적 메모리 구성을 사용하는 것이 좋습니다.  
 최대 서버 메모리는 시스템의 단일 인스턴스를 가정하여 운영 체제에 일부 메모리를 허용하도록 설정됩니다.
-운영 체제의 메모리 양은 시스템 자체에 따라 다릅니다. 8GB –16GB의 대부분의 시스템
+
+운영 체제의 메모리 양은 시스템 자체에 따라 다릅니다. 
 메모리의 경우 약 2GB-4GB를 OS에 남겨 두어야합니다. 서버의 메모리 양이 증가함에 따라
-OS에 더 많은 메모리를 할당합니다. 일반적인 권장 사항은 전체 시스템의 32GB를 초과하는 16GB마다 4GB입니다.
-기억. 시스템의 요구 사항과 메모리 할당에 따라이를 조정해야합니다. 당신은 실행해서는 안됩니다
+OS에 더 많은 메모리를 할당합니다.
+
 SQL Server와 동일한 서버에있는 다른 메모리 집약적 응용 프로그램, 그러나 필요한 경우 먼저 예상치를 얻는 것이 좋습니다.
 다른 응용 프로그램에 필요한 메모리 양을 확인한 다음 최대 서버 메모리 값을 설정하여 SQL Server를 구성하여 다른 응용 프로그램이 SQL Server의 메모리를 고갈시키지 않도록합니다. SQL Server가 실행중인 시스템
 자신의 경우 최소 서버 메모리를 최대 값과 동일하게 설정하고 동적 관리로 간단히 발송하는 것을 선호합니다.
@@ -160,12 +163,14 @@ SQL Server 의 메모리는 크게 데이터페이지와 프리페이지가 있�
 대부분은 버퍼풀이 차지한다. 그러나 버퍼풀 그 너머 영역(private bytes라고 알려진)까지 얻을 수 있긴 하지만 일반적으로 버퍼풀 모니터링하는 정상적인 절차에 걸리지 않기 때문에 메모리 압박을 유발 할수도 있다.
 이런 상황이 의심스럽다면 Process:sqlserver:Private Bytes 와 SQL Server: Buffer Manager: Total pages 를 비교해보자
 
-sp_configure 를 이용해 min server memory와 max server memory를 설ㅓㅈㅇ할 수 있다. 
+sp_configure 를 이용해 min server memory와 max server memory를 설정할 수 있다. 
 ```sql
 EXEC sp_configure 'show advanced options', 1;
 GO
+
 RECONFIGURE;
 GO
+
 EXEC sp_configure 'min server memory';
 EXEC sp_configure 'max server memory';
 ```
@@ -180,6 +185,7 @@ EXEC sp_configure 'max server memory';
 
 min server memory의 값이 0MB 이고 max server memory가 2147483647MB인것에 주의
 max server memory를 10GB, min server memory를 5GB 로 세팅하는 예제
+
 ```sql
 USE master;
 EXEC sp_configure 'show advanced option', 1;
@@ -211,9 +217,6 @@ sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디�
 |                           | Target Server Memory (KB) | SQL Server 가질수있는 최대 물리메모리 용량    | 물리적 메모리 크기에 근접해야         |
 |                           | Total Server Memory (KB)  | SQL Server의 현재 물리 메모리 용량            | Target Server Memory (KB)에 근접해야  |
 | Process                   | Private Bytes             | 다른 프로세스와 공유하지 않는 이 프로세스만의 메모리 사이즈 |                         |
-
-
-
 
 
 메모리와 디스크 I/O 간에는 밀접한 관계가 있다. 메모리 문제라고 생각했던게 사실 디스크 I/O때문 일수도 있음. 
@@ -506,7 +509,7 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 
 #### * sys.dm_xtp_system_memory_consumers
 
-## 메모리 병목 해결 방법
+## 2.6 메모리 병목 해결 방법
     다이아그램
 
 ### 어플리케이션 워크로드 최적화
