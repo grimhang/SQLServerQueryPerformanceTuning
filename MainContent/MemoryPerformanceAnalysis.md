@@ -14,22 +14,24 @@ sort: 2
 * SQL Server 와 윈도우 OS에서 사용되어지는 메모리를 관찰하고 측정하는 방법
 * 메모리 병목의 가능한 해결책
 
+내가 이번 장에서 추가한 내용이 50% 정도 될 듯하고 원본 내용은 50%도 안된다. 아무래도 원래 책은 매우 높은 수준의 전문가를 대상으로 쓰여져서 기본 개념에 대해서는 설명하지 않는다.  
+하지만 내가 이 문서를 작성할 시기에 교육 대상은 그 정도는 아니었기 때문에 기본 개념이나 추가한 것들이 많게 되었다.
+
 ----------------------------
 
 SQL Server의 메모리를 조사하기 전에 먼저 OS 메모리 할당을 먼저 알면 매우 도움이 된다.  
 
-아쉽게도 Windows OS와 SQL Server는 동음이의어가 많아서 헷갈리게 되는 경우가 많다. 어느 쪽 용어인지 확실히 이해해야 한다.
-OS쪽 메모리 먼저 정리하고 SQL Server 로 넘어가면 매우 큰 도움이 된다. 이 문서에도 용어의 틀린점과 양쪽 메모리의 할당과 서로 연관된 구조를 차례대로 설명한다.
+아쉽게도 Windows OS와 SQL Server는 동음이의어가 많아 매우 헷갈린다. 그렇기 때문에 어느 쪽 용어인지 확실히 이해해야 한다.
+OS쪽 메모리 먼저 정리하고 SQL Server 로 넘어가면 매우 큰 도움이 되며 이 문서에도 용어의 틀린점과 양쪽 메모리의 할당과 서로 연관된 구조를 차례대로 설명하겠다.
 
 먼저 우리 SQL Server는 64비트 머신이지만 32bit가 설명이 쉬우니 32bit라고 가정하자.
 
 일반적인 프로그램이 실행되어 프로세스라고 불리우게 되면 유저모드 2GB, 커널모드 2GB, 총 4GB 메모리를 사용할 수 있다.
 하지만 물리적인 메모리 용량은 한정되어 있으니 실제 할당은 하지 않고 마음속에만 4GB의 가상의 공간을 미리 생각하고 있는것이다.
-실제 메모리의 공간이 필요하게 될때만 페이지(4KB) 단위로 실제 메모리를 할당 받는다. 여기서 첫번째 페이지란 용어때문에 헷갈린다.
-SQL Server의 페이지와는 용어는 같이만 다른 개념이니 주의해야 한다. SQL Server의 페이지는 8KB단위이고 메모리의 페이지는 4KB단위.
+실제 메모리의 공간이 필요하게 될때만 페이지(4KB) 단위로 실제 메모리를 할당 받는다. 여기서 첫번째 용어 차이인 페이지가 등장한다.
+SQL Server의 페이지와는 용어는 같지만 다른 개념이니 주의. SQL Server의 페이지는 8KB단위이며 메모리의 페이지는 4KB단위(x86, x64).
 
-물리적인 메모리를 4KB 페이지 단위로 할당 받으면 이때를 commit 이라고 한다. 정확히는 내 마음속의 가상 주소와 실제 메모리 주소를 매핑하는것이지만
-이해 어렵기 때문에 넘어가자. 그리고 또 SQL Server의 commit과 동음이의어니까 조심. 동음이의어가 많이 나오니 힘들다.
+물리적인 메모리를 4KB 페이지 단위로 할당 받으면 이때를 commit 이라고 한다. 정확히는 내 마음속의 가상 주소와 실제 메모리 주소를 매핑하는것. 그리고 또 SQL Server의 commit과 동음이의어니까 조심. 작업 관리자 등에서 commit이라고 나오는 것은 다 메모리상에 할당 받는 것을 말하고 SQL Server의 트랜잭션 commit과는 상관없다.
 
 C언어를 할 줄 알면 VirtualAlloc으로 메모리 예약, 할당 받고 VirtualFree로 물리적 메모리를 해제하는데 익숙할 것이다.
 
@@ -40,15 +42,19 @@ SQL Server에 익숙하시다면 Lock pages in Memory 라는 옵션에 익숙할
 밑에서 DBCC MemoryStatus 에서 좀더 자세히 설명한다.
 
 <img src = "image/TaskManager.png" width="70%">  
-작업 관리자에서는 Commit Size라는 줄에서 실제 SQL Server가 차지하고 있는 메모리 용량 을 볼수 있다. 여기의 commit 도 메모리 쪽
-***
+
+작업 관리자의 Commit Size라는 열에서 실제 SQL Server가 차지하고 있는 메모리 용량을 볼수 있다. 여기의 commit 도 메모리의 용어.  
+제목 열을 오른쪽 클릭하면 select column 이 나오고 commit size 항목도 추가해야 볼수 있음
+
+-------------------------------------------------------------------------------------------------------------------
+
 ## 2.1 성능 모니터
-성능 모니터는 CPU, Memory, Disk, Network의 자세한 활동 데이터 측정 가능하다.
+성능 모니터는 CPU, Memory, Disk, Network의 자세한 활동 데이터를 측정하는 Windows OS의 기본 도구이다.
 또한 SQL Server 2014에서는 추가적인 기능을 성능 모니터를 통해 사용 가능하기도 한다.  
 단 VM에서 측정하는 값은 논리적인 VM 각각의 데이터이기 때문에 물리적 서버의 데이터가 아니다. 정확한 데이터가 아니기 때문에 주의.
 
 시스템 실시간 활동데이터를 그래프로 바로 볼 수도 있고, data collector set 이라는 파일로 저장할 수도 있다.  
-실서버에서는 파일로 저장하는게 오버헤드가 더 적기 때문에 보다 선호. 
+실서버에서는 파일로 저장하는게 오버헤드가 더 적기 때문에 보다 선호하는 방법. 
 
 명령도구(cmd.exe)에서 perfmon 이라고 치면 성능 모니터가 실행됨.
 
@@ -63,8 +69,7 @@ FROM sys.dm_os_performance_counters
 WHERE object_name = 'SQLServer:General Statistics'
     AND counter_name = 'Logins/sec';
 ```        
-이때 cntr_value 는 현재까지 누적치이고 cntr_type은 각각의 카운터를 가르키는 정수값이다. 여기서 참조가능
-[여기](https://docs.microsoft.com/ko-kr/windows/win32/wmisdk/wmi-performance-counter-types?redirectedfrom=MSDN) 서 참조 가능
+이때 cntr_value 는 현재까지 누적치이고 cntr_type은 각각의 카운터를 가르키는 정수값이다. [여기](https://docs.microsoft.com/ko-kr/windows/win32/wmisdk/wmi-performance-counter-types?redirectedfrom=MSDN) 서 참조 가능
 
 sys.dm_os_wait_stats 는 다양한 대기 상태의 누적치. 대기상태를 아는 것은 병목의 원인을 알수있는 가장 쉬운 방법이다.
 ```sql
@@ -72,20 +77,20 @@ SELECT TOP (10) dows.*
 FROM sys.dm_os_wait_stats AS dows
 ORDER BY dows.wait_time_ms DESC;
 ```
-다양한 대기 상태를 알수 있다.  
+
 Microsoft에서 [대기상태](http://bit.ly/1e1I38f) 찾기.
 
 
 ## 2.3 하드웨어 리소스 병목
-일반적으로 다음 4개의 하드웨어 리소스를 본다.
+일반적으로 다음 4개의 하드웨어 리소스를 살펴보고 병목을 알수 있다.
 * 메모리
 * Disk I/O
 * CPU
 * Network
 
 ### 병목 알아내기
-리소스간의 병목에는 서로 밀접한 관계가 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상도 유발한다.
-또한 시스템에 메모리가 부족하면 과도한 페이징을 유발하고 디스크에 엄청난 압박이 가해진다. 이때 CPU를 더 빠른 것으로 교체하는것은 약간의 좋은 해결책이 될수 있겠지만 최적의 방법은 아니다. 이 경우 메모리 증설이 디스크/CPU의 압박을 줄여주기 때문에 좀더 적절한 해결방법이다.
+하드웨어 리소스간의 병목에는 서로 밀접한 관계가 있다. 예를 들면 CPU병목은 과도한 페이징(메모리 병목)이나 디스크 속도 저하(디스크병목)같은 증상도 동시에 유발한다.
+또한 시스템 메모리가 부족할때도 과도한 페이징이 디스크에 엄청난 압박을 가한다. 이때 CPU를 더 빠른 것으로 교체하는것은 약간의 좋은 해결책이 될수 있겠지만 최적의 방법은 아니다. 메모리 증설이 디스크/CPU의 압박을 줄여주기 때문에 좀더 적절한 해결방법이다.
     
     병목 식별 방법
     - 가장좋은 방법 : 처리를 완료하기 위해 한 리소스가 다른 리소스를 기다리는지 알아내는 법
@@ -98,19 +103,22 @@ Microsoft에서 [대기상태](http://bit.ly/1e1I38f) 찾기.
 
     CPU나 디스크과 같은 다른 리소스들도 대부분 queue 수치 카운터가 존재한다.
 
-* 병목 해결 방법
-일단 병목을 발견하면 다음 두가지 방법중 하나를 선택할 수 있다.
-    - 하드웨어 리소스를 증설
-    - 리소스를 사용하는 방법을 교정(쿼리 튜닝과 같은)
+병목 해결 방법
+
+
+    일단 병목을 발견하면 다음 두가지 방법중 하나를 선택할 수 있다.
+        - 하드웨어 리소스를 증설
+        - 리소스를 사용하는 방법을 교정(쿼리 튜닝과 같은)
 
 
 
 ## 2.4 메모리 병목 분석
 메모리 병목 현상은 시스템의 다른 리소스에도 문제를 발생.  
-예) SQL Server가 버퍼 캐시가 부족하게 되면
-    - SQL Server의 프로세스(lazy writer같은)는 충분한 여유 내부 메모리페이지를 유지하기 위하여 과도하게 작동한다.
-    - 이는 과도한 CPU 사용률
-    - 메모리 페이지를 디스크에 쓰려하는 추가적인 물리적 disk I/O를 발생
+
+    예) SQL Server가 버퍼 캐시가 부족하게 되면
+        - SQL Server의 프로세스(lazy writer같은)는 충분한 여유 내부 메모리페이지를 유지하기 위하여 과도하게 작동한다.
+        - 이는 과도한 CPU 사용률
+        - 메모리 페이지를 디스크에 쓰려하는 추가적인 물리적 disk I/O를 발생
 
 * SQL Server 메모리 관리
     SQL Server의 메모리 구성
@@ -128,12 +136,15 @@ SQL server는 동적으로 메모리 풀 크기를 늘리거나 줄임.
 SSMS에서 세팅방법 서버등록정보/메모리
 
 
-동적 메모리 범위 두개의 구성 정보.  
-    * Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면 SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다.
+동적 메모리 범위 두개의 구성 정보. 
+
+    * Minimum(MB) : "min server memory". 메모리 풀의 희망하는 가장 낮은 값. 일단 메모리 풀이 최소값과 같은 크기에 도달하면
+                    SQL Server는 메모리 풀의 페이지를 계속 커밋 할 수 있지만 최소값보다 작게는 축소 할수 없다.
     * Maximum(MB) : "max sserver memory". 메모리 풀의 희망하는 최대 값 . 이러한 구성 설정은 즉시 적용되며 다시 시작할 필요가 없습니다. 
 
     보통 Min 값은 디폴트로 놓고 max값만 조절한다.
 
+    - 예
     a. OS 메모리 용량이 128GB일때 Min 을 1GB 로 잡고 Max를 110GB로 잡는다면
     b. 처음 SQL Server가 기동되면 매우 적은 몇MB상태일 것이다.
     c. 사용이 늘게되면 점점 메모리 사용이 늘게 될것이고 어느 순간 1GB를 넘는다
@@ -143,6 +154,7 @@ SSMS에서 세팅방법 서버등록정보/메모리
 
 
 Microsoft는 동적 메모리 권장을 사용하도록 권장.  
+
     * min server memory는 0.
     * Max server memory는 OS에 약간의 memory 허용치를 놔두게.
         8~16GB 메모리 일 경우 OS메모리는 2~4GB 여유. 일반적으로는 5GB ~ 10GB 정도 빼준다.
@@ -154,15 +166,9 @@ Microsoft는 동적 메모리 권장을 사용하도록 권장.
 메모리의 경우 약 2GB-4GB를 OS에 남겨 두어야합니다. 서버의 메모리 양이 증가함에 따라
 OS에 더 많은 메모리를 할당합니다.
 
-SQL Server와 동일한 서버에있는 다른 메모리 집약적 응용 프로그램, 그러나 필요한 경우 먼저 예상치를 얻는 것이 좋습니다.
-다른 응용 프로그램에 필요한 메모리 양을 확인한 다음 최대 서버 메모리 값을 설정하여 SQL Server를 구성하여 다른 응용 프로그램이 SQL Server의 메모리를 고갈시키지 않도록합니다. SQL Server가 실행중인 시스템
-자신의 경우 최소 서버 메모리를 최대 값과 동일하게 설정하고 동적 관리로 간단히 발송하는 것을 선호합니다.
-여러 SQL Server 인스턴스가있는 서버에서는 각 인스턴스에 다음과 같은 메모리 설정이 있는지 확인해야합니다.
-적절한 가치. 운영 체제 및 외부 프로세스를위한 충분한 메모리가 남아 있는지 확인하십시오.
-
 SQL Server 의 메모리는 크게 데이터페이지와 프리페이지가 있는 버퍼풀 메모리와 쓰레드, DLL들, 연결된 서버들 등등이 있는 비버퍼 메모리로 나눠진다.
-대부분은 버퍼풀이 차지한다. 그러나 버퍼풀 그 너머 영역(private bytes라고 알려진)까지 얻을 수 있긴 하지만 일반적으로 버퍼풀 모니터링하는 정상적인 절차에 걸리지 않기 때문에 메모리 압박을 유발 할수도 있다.
-이런 상황이 의심스럽다면 Process:sqlserver:Private Bytes 와 SQL Server: Buffer Manager: Total pages 를 비교해보자
+대부분은 버퍼풀이 차지. 그러나 버퍼풀 그 너머 영역(private bytes라고 알려진)까지 얻을 수 있긴 하지만 일반적으로 버퍼풀 모니터링하는 정상적인 절차에 걸리지 않기 때문에 메모리 압박을 유발 할수도 있다.
+이런 상황이 의심스럽다면 Process:sqlserver:Private Bytes 와 SQL Server: Memory Manager: Total Server Memory 를 비교해보자
 
 sp_configure 를 이용해 min server memory와 max server memory를 설정할 수 있다. 
 ```sql
@@ -184,7 +190,7 @@ EXEC sp_configure 'max server memory';
 |:---:                  |:----:     |:----          |:----          |:----      |
 | max server memory (MB)| 128       | 2147483647    | 102400        | 102400    |
 
-min server memory의 값이 0MB 이고 max server memory가 2147483647MB인것에 주의
+min server memory의 값이 0MB 이고 max server memory가 2147483647MB인것에 주의  
 max server memory를 10GB, min server memory를 5GB 로 세팅하는 예제
 
 ```sql
@@ -199,7 +205,7 @@ show_advanced option을 1로 킨 다음에 세팅해야 정상적으로 완료�
 sys.configuration 뷰를 통해서도 메모리 세팅 값을 조회할수 디다.
 
 
-메모리를 분석할수 있는 성능 모니터 카운터
+### * 메모리를 분석할수 있는 성능 모니터 카운터
 
 | 오브젝트                  | Counter                   | 설명                                          |값                                     |
 |:---                       |:----                      |:----                                          |:----                                  |
@@ -252,14 +258,16 @@ Pages/sec은 일반적으로 0에서 10000 까지 볼수 있기 때문에 매우
 
     정리하자면
     - os 단위
-    >> page fault --- soft page fault
-    >>            |
-    >>            --- hard page fault(pages/sec) --- Pages Input/sec
-    >>                                           |
-    >>                                           --- Pages Output/sec
+    >> page fault (Pages Faults/sec)  --- soft page fault
+    >>                               |
+    >>                               --- hard page fault(pages/sec) --- Pages Input/sec
+    >>                                                              |
+    >>                                                              --- Pages Output/sec
 
     - process 단위
-    > Process(sqlservr) -- Pages Faults/sec
+    >> Process(sqlservr) -- Pages Faults/sec
+    
+       프로세스 단위에는 Pages Input/sec, Pages Output/sec 카운터가 없다.
 
 ### * Paging File %Usage, Page File %Usage
 윈도우의 모든 메모리는 물리적 메모리만이 아니다. 가상메모리(페이징파일)도 존재하는데 필요할때 물리적 메모리와 데이터를 스왑한다. 이 카운터로 얼마나 자주 스와핑이 발생하는지 이해할 수 있다. 보통은 SQL Server가 아니고 Windows OS에서 수행된다. 하지만 충분하지 않은 가상메모리는 SQL Server까지 영향을 미친다. 이 수치는 SQL Server상의 메모리 압박이 내부적 또는 외부적인지 이해하기 위해 수집된다. 외부의 메모리 압박이라면 SQL Server 이외의 어떤 요소가 문제인지 OS 단에서 확인할 필요가 있다.
@@ -473,10 +481,19 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 | Process physical memory low       | 0                             |
 | Process virtual memory low        | 0                             |
 	
+
+```
 첫번째 결과를 해석하면 다음과 같다.
-    Available Physical Memory : 현재 여유 용량은 22234664960(약22GB)
-    System physical memory high : 시스템의 물리적 메모리 용량이 많아서 1
-    Working Set  : 메모리 작업집합은 4.5GB
+
+- Available Physical Memory         : 현재 여유 용량은 약22GB (22234664960)
+- System physical memory high       : 1은 true. 시스템의 물리적 메모리 용량이 많다는 뜻
+- Working Set                       : 메모리 작업집합은 4.5GB.
+- Percent of Committed Memory in WS : 100%이니까 Working Set안에 Commit(할당)이 완전히 되었다는 뜻. 하지만 SQL Server는 WS이 아니고
+                                       별도의 Commit 메모리(Private memory)안에 버퍼풀을 유지한다. 그렇기 때문에 이 값은 의미 없음.
+                                       위 말도 맞는 완전히 맞는 말이 아니다. 이상하게도 Windows OS는 다른 용어를 같은 의미로 쓰는 경우가 많다.
+                                       시간되면 뒤에서 설명하겠다.
+- Page Faults                       :                                  
+```
 
 두번째 결과는 다음과 같다
 
@@ -499,19 +516,32 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 |Last OOM Factor	        | 0             |
 |Last OS Error	            | 0             |
 
+```
 두번째 결과를 해석하면 
     * Locked Pages Allocated : 이 서버는 Lock page in Memory 설정을 해 놓은 서버이고
                                 현재 99GB가 Locked pages로 메모리상에 존재
-    * Target Committed : 104GB. 여기서 메모리 할당의 commit.  성능 카운터의 Target Server memory
-    * Current Committed : 104GB. 성능 카운터의 Total Server memory                                
+    * Target Committed      : 104GB. 여기서 메모리 할당의 commit.  성능 카운터의 Target Server memory
+    * Current Committed     : 104GB. 성능 카운터의 Total Server memory    
+    * NUMA Growth Phasㅕ    : NUMA 노드는 2개                         
+```
 
-그 외의 다른 결과셋은 MSDB 찾아보자
+그 외의 다른 결과셋은 MSDN 찾아보자
 
 ### 동적 관리 객체(Dynamic Management Objects)
+3개의 가장 자주 사용하는 DMV과 2개의 메모리 할당 조사 dmV 
 
 #### * sys.dm_os_memory_brokers
+SQL Server의 대부분 메모리는 버퍼 캐시 부분이고 많은 프로세스들이 SQL Server안의 메모리를 소비한다. 이런 프로세스들이 자신들이 소비하는 메모리 할당 정보를 이 DMV를 통해서 노출한다. 메모리 병목 상황에서 어떤 프로세스들이 버퍼 캐시에서 가져오고 날리는지 리소스 소비 정보를 알수 있다.
+
 #### * sys.dm_os_memory_cleaks
+메모리 클럭은 SQL Server안의 메모리를 할당하는 프로세스들이다. 이러한 프로세스가 무엇인지 살펴보면 SQL Server 내에서 필요한 메모리의 프로 시저 캐시를 빼앗을 수있는 내부 메모리 할당 문제가 있는지 파악할 수 있습니다.  
+Private Bytes에 대한 성능 모니터 카운터가 높으면 다음을 수행 할 수 있습니다.
+DMV를 통해 소비되는 시스템 부분을 확인합니다. 메모리 내 OLTP 저장소를 사용하는 데이터베이스가있는 경우 sys.dm_db_xtp_table_memory_stats를 사용하여 개별 데이터베이스 개체를 볼 수 있습니다. 그러나 전체 인스턴스에서 이러한 개체의 할당을 확인하려면 sys.dm_os_memory_clerks를 사용해야합니다.
+
 #### * sys.dm_os_ring_buffers
+이 DMV는 온라인 설명서에 문서화되어 있지 않으므로 변경되거나 제거 될 수 있습니다. SQL Server 2008R2와 SQL Server 2012 사이에서 변경되었습니다. 일반적으로 실행하는 쿼리는 SQL Server 2014에서도 작동하는 것처럼 보이지만 믿을 수 없습니다. 이 DMV는 XML로 출력됩니다. 일반적으로 출력을 눈으로 읽을 수 있지만 링 버퍼에서 정말 정교한 읽기를 얻으려면 XQuery를 구현해야 할 수도 있습니다.
+
+링 버퍼는 알림에 대한 기록 된 응답에 지나지 않습니다. 링 버퍼는이 DMV 내에 보관되며 sys.dm_os_ring_buffers에 액세스하면 메모리 내에서 변경되는 사항을 볼 수 있습니다. 표 2-2는 메모리와 관련된 기본 링 버퍼를 설명합니다.
     표
 
 #### * sys.dm_db_xtp_table_memory_stats
