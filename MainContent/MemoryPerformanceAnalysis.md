@@ -686,7 +686,7 @@ order BY pages_kb desc
 
 링 버퍼는 알림에 대한 기록 된 응답에 지나지 않습니다. 링 버퍼는이 DMV 내에 보관되며 sys.dm_os_ring_buffers에 액세스하면 메모리 내에서 변경되는 사항을 볼 수 있습니다. 아래 표는 메모리와 관련된 기본 링 버퍼를 설명합니다.
 
-```sql
+
         Ring Buffer    Ring_buffer_type                설명
     -----------------  ------------------------------  -------------------
     Resource Monitor   RING_BUFFER_RESOURCE_MONITOR    메모리 할당이 변하는 상황 기록. 외부 메모리 압박을 식별할때 유용
@@ -696,12 +696,12 @@ order BY pages_kb desc
                                                        발생할때 알 수 있는 유용한 정보
     Buffer Pool        RING_BUFFER_BUFFER_POOL         버퍼 풀 자체적으로 메모리 부족상황을 기록 통지. 일반적인 메모리압박 표시
 
- 
+ ```sql
     SELECT *
     FROM sys.dm_os_ring_buffers
     WHERE ring_buffer_type = 'RING_BUFFER_MEMORY_BROKER'
     order by timestamp desc
-
+```
 
     <Record id = "60355" type ="RING_BUFFER_MEMORY_BROKER" time ="16919211856">
         <MemoryBroker>
@@ -720,7 +720,7 @@ order BY pages_kb desc
     </Record>
 
     MEMORYBROKER_FOR_XTP 브로커가 2번째 풀(리소스 관리자의 2번풀인 internal)에서 비우라고 기록됨
-```
+
 
 #### * sys.dm_db_xtp_table_memory_stats
 
