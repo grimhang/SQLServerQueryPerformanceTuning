@@ -663,28 +663,29 @@ order BY pages_kb desc
     * MEMORYCLERK_SQLBUFFERPOOL : max server memory가 110GB인 서버이니 MEMORYCLERK_SQLBUFFERPOOL들 합치면 90GB 정도되고
                                   나머지 20GB가 다른 용도로 쓰인다
     * CACHESTORE_SQLCP          : 4.3GB나 사용. prepared나 ad-hoc 쿼리의 컴파일된 계획의 캐시니까
-                                    이 서버의 다양한 패턴의 임시쿼리들이 많이 들어 온다는 것을 알수 있다
+                                  이 서버에는 다양한 패턴의 많은 임시쿼리들이 들어 온다는 것을 알수 있다
     * CACHESTORE_OBJCP          : sp, 함수등의 컴파일된 실행계획
     * OBJECTSTORE_LOCK_MANAGER  : lock이 소비하는 메모리인데 너무 많을 경우 심각한 블로킹 문제가 발생할 수 있다.
                                   실제 이서버는 블로킹 문제가 매우 심각하다.
                                   또한 rowlock 힌트를 사용한 대량의 테이블 삭제 배치 작업이 빈번하게 수행된다.
-                                  이 배치 개발자는 오라클에 익숙한 사람일 것이며 그 방식대로 해결하려 한다는 것을 알 수 있다.
+                                  이 배치 개발자는 오라클에 익숙한 사람일 것이며 그 방식대로 해결하려 하는데
                                   하지만 MSSQL에서는 그로 인하여 적절한 lock escalation이 발생하지 않는 등의 심각한 문제가 있으며
                                   실제 이 배치 작업도 큰 성능 저하를 일으키고 있다.
     * OBJECTSTORE_XACT_CACHE    : 트랜잭션 정보 캐시하는데 사용. 용량도 400MB이니 크다
                                   이 서버는 대량 데이터 삭제/갱신 배치작업이 매우 빈번하고 그로 인해 Batchreqest/sec 보다 TPS가 높은
-                                  특이한 상황이다. 이런 문제로 인해 매우 높은 수치가 발생함을 알 수 있다.
+                                  상황이다. 이런 문제로 인해 매우 높은 수치가 발생함을 알 수 있다.
     * USERSTORE_SCHEMAMGR       : 다양한 유형의 오브젝트 메타 데이터 정보 캐시. 150MB로 높다.
-                                  실제로 이 서버는 임시 테이블, 임시 테이블 변수, 작업 테이블들을 매우 많이 사용한다. 따라서 tempdb 사용량도 극도로 
-                                  높다. 메모리의데이터 페이지수를 세어보면 tempdb 높다.
+                                  실제로 이 서버는 임시 테이블, 임시 테이블 변수, 작업 테이블들에 대량의 임시 데이터를 담아 사용한다.
+                                  따라서 tempdb 사용량도 매우 높으며 버퍼캐시의 데이터 페이지수를 세어보면 tempdb쪽에서 높은 수치.
                                   즉 임시 오브젝트를 수행하는 로직들을 찾아 개선할 필요가 있음을 알 수 있다.
 
 
 #### * sys.dm_os_ring_buffers
 이 DMV는 온라인 설명서에 문서화되어 있지 않으므로 변경되거나 제거 될 수 있습니다. SQL Server 2008R2와 SQL Server 2012 사이에서 변경되었습니다. 일반적으로 실행하는 쿼리는 SQL Server 2014에서도 작동하는 것처럼 보이지만 믿을 수 없습니다. 이 DMV는 XML로 출력됩니다. 일반적으로 출력을 눈으로 읽을 수 있지만 링 버퍼에서 정말 정교한 읽기를 얻으려면 XQuery를 구현해야 할 수도 있습니다.
 
-링 버퍼는 알림에 대한 기록 된 응답에 지나지 않습니다. 링 버퍼는이 DMV 내에 보관되며 sys.dm_os_ring_buffers에 액세스하면 메모리 내에서 변경되는 사항을 볼 수 있습니다. 표 2-2는 메모리와 관련된 기본 링 버퍼를 설명합니다.
+링 버퍼는 알림에 대한 기록 된 응답에 지나지 않습니다. 링 버퍼는이 DMV 내에 보관되며 sys.dm_os_ring_buffers에 액세스하면 메모리 내에서 변경되는 사항을 볼 수 있습니다. 아래 표는 메모리와 관련된 기본 링 버퍼를 설명합니다.
 
+```sql
         Ring Buffer                 Ring_buffer_type                설명
     ------------------------------  ------------------------------  -------------------
     Resource Monitor                RING_BUFFER_RESOURCE_MONITOR    메모리 할당이 변하는 상황 기록. 외부 메모리 압박을 식별할때 유용
@@ -694,12 +695,12 @@ order BY pages_kb desc
                                                                     발생할때 알 수 있는 유용한 정보
     Buffer Pool                     RING_BUFFER_BUFFER_POOL         버퍼 풀 자체적으로 메모리 부족상황을 기록 통지. 일반적인 메모리압박 표시
 
-    ```sql
+ 
     SELECT *
     FROM sys.dm_os_ring_buffers
     WHERE ring_buffer_type = 'RING_BUFFER_MEMORY_BROKER'
     order by timestamp desc
-    ```
+
 
     <Record id = "60355" type ="RING_BUFFER_MEMORY_BROKER" time ="16919211856">
         <MemoryBroker>
@@ -718,6 +719,7 @@ order BY pages_kb desc
     </Record>
 
     MEMORYBROKER_FOR_XTP 브로커가 2번째 풀(리소스 관리자의 2번풀인 internal)에서 비우라고 기록됨
+```
 
 #### * sys.dm_db_xtp_table_memory_stats
 
