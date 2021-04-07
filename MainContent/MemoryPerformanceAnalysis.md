@@ -525,24 +525,198 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
     * NUMA Growth Phasㅕ    : NUMA 노드는 2개                         
 ```
 
-그 외의 다른 결과셋은 MSDN 찾아보자
+더 자세한 것은 [DBCC MEMORYSTATUS로 SQL Server 메모리 사용조사](https://docs.microsoft.com/ko-KR/troubleshoot/sql/performance/dbcc-memorystatus-monitor-memory-usage)
 
 ### 동적 관리 객체(Dynamic Management Objects)
-3개의 가장 자주 사용하는 DMV과 2개의 메모리 할당 조사 dmV 
+메모리 병목상황에서 가장 자구 사용되는 3개의 DMV과
+인메모리 OLTP 메모리 사용할때 2개의 DMV 
+
+#### * sys.dm_os_memory_brokers
+현재 SQL Server 버퍼 풀에 있는 모든 데이터 페이지에 대한 정보를 반환
+
+```sql
+-- 데이터별로 버퍼캐시 사용량
+select DB_NAME(database_id) as DBNamed, numa_node
+    , sum(row_count * 1.0) RowCnt, sum(free_space_in_bytes * 1.0) FreeSpaceBytes
+    , COUNT_BIG(*)  as Capa_KB
+from sys.dm_os_buffer_descriptors
+GROUP BY database_id,  numa_node
+ORDER BY database_id, numa_node
+
+    DBNamed           numa_node  RowCnt       FreeSpaceBytes  Capa_KB
+    ----------------  ---------  -----------  --------------  --------------------
+    master            0          3328.0       329638.0        77
+    master            1          3913.0       215858.0        80
+    tempdb            0          8586776.0    332743249.0     332239
+    tempdb            1          12386946.0   567433321.0     455244
+    model             0          998.0        74101.0         18
+    model             1          190.0        16391.0         7
+    msdb              0          207616.0     103651897.0     36885
+    msdb              1          8101.0       821311.0        545
+    APPLE             0          1755.0       127911.0        29
+    APPLE             1          13.0         15224.0         4
+    TOMATO            0          184670790.0  11446474871.0   5131561
+    TOMATO            1          173250051.0  9196274937.0    3800239
+    GREEN_FRUIT       0          4244.0       271194.0        83
+    GREEN_FRUIT       1          7455.0       691817.0        215
+    PEPPER            0          14488.0      9907506.0       7483
+    PEPPER            1          83366.0      91196397.0      65386
+    ROSE              0          33033.0      41369277.0      10899
+    ROSE              1          5774.0       7849631.0       2107
+    NULL              0          5532.0       365566.0        119
+    NULL              1          9301.0       603662.0        198
+
+    보면 NUMA 노드 0번과 1번의 버퍼캐시량이 틀리기 때문에 실제 디테일하게 NUMA 노드별로 확인하는게  
+    정답이지만 대부분 비슷하기 때문에 평균 값으로 보는 경우가 대부분.
+
+-- 현재 DB의 오브젝트별 버퍼 캐시 사용량
+SELECT COUNT(*)AS cached_pages_count   
+    ,name ,index_id   
+FROM sys.dm_os_buffer_descriptors AS bd   
+    INNER JOIN   
+    (  
+        SELECT object_name(object_id) AS name   
+            ,index_id ,allocation_unit_id  
+        FROM sys.allocation_units AS au  
+            INNER JOIN sys.partitions AS p   
+                ON au.container_id = p.hobt_id   
+                    AND (au.type = 1 OR au.type = 3)  
+        UNION ALL  
+        SELECT object_name(object_id) AS name     
+            ,index_id, allocation_unit_id  
+        FROM sys.allocation_units AS au  
+            INNER JOIN sys.partitions AS p   
+                ON au.container_id = p.partition_id   
+                    AND au.type = 2  
+    ) AS obj   
+        ON bd.allocation_unit_id = obj.allocation_unit_id  
+WHERE database_id = DB_ID()  
+GROUP BY name, index_id   
+ORDER BY cached_pages_count DESC;      
+
+    cached_pages_count  name                    index_id
+    ------------------  ----------------------  -----------
+    1981787             AAAABBBCCCCC            1
+    1126135             TTADBAC                 1
+    569121              OK_TABLE                1
+    433561              OK_TABLE                2
+```
 
 #### * sys.dm_os_memory_brokers
 SQL Server의 대부분 메모리는 버퍼 캐시 부분이고 많은 프로세스들이 SQL Server안의 메모리를 소비한다. 이런 프로세스들이 자신들이 소비하는 메모리 할당 정보를 이 DMV를 통해서 노출한다. 메모리 병목 상황에서 어떤 프로세스들이 버퍼 캐시에서 가져오고 날리는지 리소스 소비 정보를 알수 있다.
+```
+SELECT *
+FROM sys.dm_os_memory_brokers
 
-#### * sys.dm_os_memory_cleaks
-메모리 클럭은 SQL Server안의 메모리를 할당하는 프로세스들이다. 이러한 프로세스가 무엇인지 살펴보면 SQL Server 내에서 필요한 메모리의 프로 시저 캐시를 빼앗을 수있는 내부 메모리 할당 문제가 있는지 파악할 수 있습니다.  
-Private Bytes에 대한 성능 모니터 카운터가 높으면 다음을 수행 할 수 있습니다.
-DMV를 통해 소비되는 시스템 부분을 확인합니다. 메모리 내 OLTP 저장소를 사용하는 데이터베이스가있는 경우 sys.dm_db_xtp_table_memory_stats를 사용하여 개별 데이터베이스 개체를 볼 수 있습니다. 그러나 전체 인스턴스에서 이러한 개체의 할당을 확인하려면 sys.dm_os_memory_clerks를 사용해야합니다.
+    pool_id  memory_broker_type                  allocations_kb  allocations_kb_per_sec  predicted_allocations_kb  target_allocations_kb
+    -------  ----------------------------------  --------------  ----------------------  ------------------------  ---------------------
+    1        MEMORYBROKER_FOR_CACHE              542560          -4502                   542560                    55034560
+    1        MEMORYBROKER_FOR_STEAL              206328          0                       206328                    54698328
+    1        MEMORYBROKER_FOR_RESERVE            0               0                       0                         54492000
+    1        MEMORYBROKER_FOR_COMMITTED          16204904        0                       16204904                  70696904
+    1        MEMORYBROKER_FOR_HASHED_DATA_PAGES  0               0                       0                         54492000
+    1        MEMORYBROKER_FOR_XTP                2856            0                       2856                      54494856
+    2        MEMORYBROKER_FOR_CACHE              8594736         66                      8595000                   63087000
+    2        MEMORYBROKER_FOR_STEAL              52096           -326                    52096                     54544096
+    2        MEMORYBROKER_FOR_RESERVE            37072           416                     19518976                  74010976
+    2        MEMORYBROKER_FOR_HASHED_DATA_PAGES  0               0                       0                         54492000
+    2        MEMORYBROKER_FOR_XTP                0               0                       0                         54492000    
+```
+
+자세한 것은 설명서를 찾아보고 중요한 내용만 설명한다
+    * pool_id : SQL Server의 기본 리소스 관리자의 풀인 (default:0, internal:1) 표시. 리소스 풀을 추가하면 여기서도 표시됨    
+    * memory_broker_type : 3개의 브로커인
+        MEMORYBROKER_FOR_CACHE : 캐시된 오브젝트 메모리 양. (버퍼 풀 캐시 아님)
+        MEMORYBROKER_FOR_STEAL : 버퍼 풀에서 컴파일에 사용하기 위해 뺏어온 메모리
+        MEMORYBROKER_FOR_RESERVE : 쿼리 실행을 위해 예약된 메모리       
+    * allocations_kb : 현재 할당된 메모리 양(KB)
+
+모든 메모리 브로커의 정보도 없고 이 메모리가 실제 물리적 메모리와 아무리 검증해 봐도 틀리기 때문에 내능력으로는 이걸 이용할 수 없다
+
+#### * sys.dm_os_memory_clerks
+메모리 클럭은 SQL Server안의 메모리를 할당하는 프로세스들이다. 내부 메모리 할당 문제같은 경우를 파악할 수 있다.  
+
+```sql
+SELECT top 10 [type], memory_node_id, sum(pages_kb) pages_kb 
+FROM sys.dm_os_memory_clerks
+GROUP BY [type], memory_node_id
+order BY pages_kb desc
+
+
+    type                           memory_node_id pages_kb
+    ------------------------------ -------------- --------------------
+    MEMORYCLERK_SQLBUFFERPOOL      0              58531776
+    MEMORYCLERK_SQLBUFFERPOOL      1              23224056
+    CACHESTORE_SQLCP               0              4300568
+    OBJECTSTORE_LOCK_MANAGER       0              634856
+    OBJECTSTORE_LOCK_MANAGER       1              620576
+    OBJECTSTORE_XACT_CACHE         0              397624
+    USERSTORE_SCHEMAMGR            0              157296
+    CACHESTORE_OBJCP               0              131712
+    MEMORYCLERK_SQLQERESERVATIONS  1              66760
+    MEMORYCLERK_SQLGENERAL         0              66640
+```
+
+    이 수치만 봐도 이서버의 대략적인 상황을 유추할 수 있다.
+
+    * MEMORYCLERK_SQLBUFFERPOOL : max server memory가 110GB인 서버이니 MEMORYCLERK_SQLBUFFERPOOL들 합치면 90GB 정도되고
+                                  나머지 20GB가 다른 용도로 쓰인다
+    * CACHESTORE_SQLCP          : 4.3GB나 사용. prepared나 ad-hoc 쿼리의 컴파일된 계획의 캐시니까
+                                    이 서버의 다양한 패턴의 임시쿼리들이 많이 들어 온다는 것을 알수 있다
+    * CACHESTORE_OBJCP          : sp, 함수등의 컴파일된 실행계획
+    * OBJECTSTORE_LOCK_MANAGER  : lock이 소비하는 메모리인데 너무 많을 경우 심각한 블로킹 문제가 발생할 수 있다.
+                                  실제 이서버는 블로킹 문제가 매우 심각하다.
+                                  또한 rowlock 힌트를 사용한 대량의 테이블 삭제 배치 작업이 빈번하게 수행된다.
+                                  이 배치 개발자는 오라클에 익숙한 사람일 것이며 그 방식대로 해결하려 한다는 것을 알 수 있다.
+                                  하지만 MSSQL에서는 그로 인하여 적절한 lock escalation이 발생하지 않는 등의 심각한 문제가 있으며
+                                  실제 이 배치 작업도 큰 성능 저하를 일으키고 있다.
+    * OBJECTSTORE_XACT_CACHE    : 트랜잭션 정보 캐시하는데 사용. 용량도 400MB이니 크다
+                                  이 서버는 대량 데이터 삭제/갱신 배치작업이 매우 빈번하고 그로 인해 Batchreqest/sec 보다 TPS가 높은
+                                  특이한 상황이다. 이런 문제로 인해 매우 높은 수치가 발생함을 알 수 있다.
+    * USERSTORE_SCHEMAMGR       : 다양한 유형의 오브젝트 메타 데이터 정보 캐시. 150MB로 높다.
+                                  실제로 이 서버는 임시 테이블, 임시 테이블 변수, 작업 테이블들을 매우 많이 사용한다. 따라서 tempdb 사용량도 극도로 
+                                  높다. 메모리의데이터 페이지수를 세어보면 tempdb 높다.
+                                  즉 임시 오브젝트를 수행하는 로직들을 찾아 개선할 필요가 있음을 알 수 있다.
+
 
 #### * sys.dm_os_ring_buffers
 이 DMV는 온라인 설명서에 문서화되어 있지 않으므로 변경되거나 제거 될 수 있습니다. SQL Server 2008R2와 SQL Server 2012 사이에서 변경되었습니다. 일반적으로 실행하는 쿼리는 SQL Server 2014에서도 작동하는 것처럼 보이지만 믿을 수 없습니다. 이 DMV는 XML로 출력됩니다. 일반적으로 출력을 눈으로 읽을 수 있지만 링 버퍼에서 정말 정교한 읽기를 얻으려면 XQuery를 구현해야 할 수도 있습니다.
 
 링 버퍼는 알림에 대한 기록 된 응답에 지나지 않습니다. 링 버퍼는이 DMV 내에 보관되며 sys.dm_os_ring_buffers에 액세스하면 메모리 내에서 변경되는 사항을 볼 수 있습니다. 표 2-2는 메모리와 관련된 기본 링 버퍼를 설명합니다.
-    표
+
+        Ring Buffer                 Ring_buffer_type                설명
+    ------------------------------  ------------------------------  -------------------
+    Resource Monitor                RING_BUFFER_RESOURCE_MONITOR    메모리 할당이 변하는 상황 기록. 외부 메모리 압박을 식별할때 유용
+    Out Of Memory                   RING_BUFFER_OOM                 메모리 부족상황에서 할당 실패타입이 기록됨.
+    Memory Broker                   RING_BUFFER_MEMORY_BROKER       내부적으로 메모리가 모자르면 낮은 메모리 알림으로 안해 강제적으로 버퍼메모리를 
+                                                                    비우라고 프로세스들에게 통지된다. 이런 통지 기록이 저장되기에 내부적 메모리 압박이
+                                                                    발생할때 알 수 있는 유용한 정보
+    Buffer Pool                     RING_BUFFER_BUFFER_POOL         버퍼 풀 자체적으로 메모리 부족상황을 기록 통지. 일반적인 메모리압박 표시
+
+    ```sql
+    SELECT *
+    FROM sys.dm_os_ring_buffers
+    WHERE ring_buffer_type = 'RING_BUFFER_MEMORY_BROKER'
+    order by timestamp desc
+    ```
+
+    <Record id = "60355" type ="RING_BUFFER_MEMORY_BROKER" time ="16919211856">
+        <MemoryBroker>
+            <DeltaTime>120</DeltaTime>
+            <Pool>2</Pool>
+            <Broker>MEMORYBROKER_FOR_XTP</Broker>
+            <Notification>GROW</Notification>
+            <MemoryRatio>100</MemoryRatio>
+            <NewTarget>4434919</NewTarget>
+            <Overall>10506240</Overall>
+            <Rate>0</Rate>
+            <CurrentlyPredicted>0</CurrentlyPredicted>
+            <CurrentlyAllocated>0</CurrentlyAllocated>
+            <PreviouslyAllocated>0</PreviouslyAllocated>
+        </MemoryBroker>
+    </Record>
+
+    MEMORYBROKER_FOR_XTP 브로커가 2번째 풀(리소스 관리자의 2번풀인 internal)에서 비우라고 기록됨
 
 #### * sys.dm_db_xtp_table_memory_stats
 
