@@ -624,6 +624,7 @@ FROM sys.dm_os_memory_brokers
 ```
 
 자세한 것은 설명서를 찾아보고 중요한 내용만 설명한다
+
     * pool_id : SQL Server의 기본 리소스 관리자의 풀인 (default:0, internal:1) 표시. 리소스 풀을 추가하면 여기서도 표시됨    
     * memory_broker_type : 3개의 브로커인
         MEMORYBROKER_FOR_CACHE : 캐시된 오브젝트 메모리 양. (버퍼 풀 캐시 아님)
