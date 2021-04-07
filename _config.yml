@@ -1,7 +1,7 @@
-title : "MS SQL Server tuning"
+title : "MS SQL Server Query tuning"
 name  : "Sungchool Park"
 lang: en
-description: "MS SQL Server 2014 tuning의 번역본"
+description: "MS SQL Server 2014 Query Tuning"
 
 url     : "https://grimhang.github.io"
 baseurl : "/SQLServerQueryPerformanceTuning"
