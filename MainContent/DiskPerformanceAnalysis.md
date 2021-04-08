@@ -18,14 +18,13 @@ SQL Server에는 까다로운 I/O 요구사항이 있을 수 있으며 디스크
 ### 디스크 카운터
 
 ```
-Object(Instance)    Counter                     Description                                     Value
-------------------  --------------              ---------------------------------------------   ---------------------------------------
-PhysicalDisk        %Disk Time                  디스크가 바쁜 비율                              평균 85% 이하여야 하지만 베이스라인 참고
-                    Current Disk Queue Length   성능 데이터를 수집 할 때 미해결 디스크 요청 수  베이스라인과 비교
-                    Avg. Disk Queue Length      샘플 간격동안 대기중인 디스크 요청 평균 개수    베이스라인과 비교
-                    Disk Transfers/sec          디스크 연산중 읽기 쓰기 비율                    I/O 서브시스템의 최대값
-                    Disk Bytes/sec              초당 디스크에 접근하는 데이터 전송량            I/O 서브시스템의 최대값
-                    Avg.Disk Sec/Read           디스크에서 읽는 평균 시간(ms)                   평균 값 10ms 보다 작아야. 베이스라인 참고
-                    Avg.Disk sec/Write          디스크에 쓰는 평균 시간(ms)                     평균 값 10ms 보다 작아야. 베이스라인 참고
-
+Object(Instance)  Counter                   Description                                     Value
+----------------  --------------            ---------------------------------------------   ---------------------------------------
+PhysicalDisk      %Disk Time                디스크가 바쁜 비율                              평균 85% 이하여야 하지만 베이스라인 참고
+                  Current Disk Queue Length 성능 데이터를 수집 할 때 미해결 디스크 요청 수  베이스라인과 비교
+                  Avg. Disk Queue Length    샘플 간격동안 대기중인 디스크 요청 평균 개수    베이스라인과 비교
+                  Disk Transfers/sec        디스크 연산중 읽기 쓰기 비율                    I/O 서브시스템의 최대값
+                  Disk Bytes/sec            초당 디스크에 접근하는 데이터 전송량            I/O 서브시스템의 최대값
+                  Avg.Disk Sec/Read         디스크에서 읽는 평균 시간(ms)                   평균 값 10ms 보다 작아야. 베이스라인 참고
+                  Avg.Disk sec/Write        디스크에 쓰는 평균 시간(ms)                     평균 값 10ms 보다 작아야. 베이스라인 참고
 ```
