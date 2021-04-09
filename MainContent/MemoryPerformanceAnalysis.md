@@ -531,7 +531,7 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 메모리 병목상황에서 가장 자구 사용되는 3개의 DMV과
 인메모리 OLTP 메모리 사용할때 2개의 DMV 
 
-#### * sys.dm_os_memory_brokers
+#### * sys.dm_os_buffer_descriptors
 현재 SQL Server 버퍼 풀에 있는 모든 데이터 페이지에 대한 정보를 반환
 
 ```sql
