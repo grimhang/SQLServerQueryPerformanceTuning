@@ -543,6 +543,7 @@ from sys.dm_os_buffer_descriptors
 GROUP BY database_id,  numa_node
 ORDER BY database_id, numa_node
 
+/*
     DBNamed           numa_node  RowCnt       FreeSpaceBytes  Capa_KB
     ----------------  ---------  -----------  --------------  --------------------
     master            0          3328.0       329638.0        77
@@ -568,6 +569,7 @@ ORDER BY database_id, numa_node
 
     보면 NUMA 노드 0번과 1번의 버퍼캐시량이 틀리기 때문에 실제 디테일하게 NUMA 노드별로 확인하는게  
     정답이지만 대부분 비슷하기 때문에 평균 값으로 보는 경우가 대부분.
+*/
 
 -- 현재 DB의 오브젝트별 버퍼 캐시 사용량
 SELECT COUNT(*)AS cached_pages_count   
