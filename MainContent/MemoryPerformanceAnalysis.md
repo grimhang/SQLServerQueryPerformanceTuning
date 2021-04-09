@@ -536,13 +536,13 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 
 ```sql
 -- 데이터별로 버퍼캐시 사용량
-select DB_NAME(database_id) as DBNamed, numa_node
-    , sum(row_count * 1.0) RowCnt, sum(free_space_in_bytes * 1.0) FreeSpaceBytes
-    , COUNT_BIG(*)  as Capa_KB
+select DB_NAME(database_id) DBNamed, numa_node
+    , sum(row_count * 1.0)           RowCnt
+    , sum(free_space_in_bytes * 1.0) FreeSpaceBytes
+    , COUNT_BIG(*)                   Capa_KB
 from sys.dm_os_buffer_descriptors
 GROUP BY database_id,  numa_node
 ORDER BY database_id, numa_node
-
 
     DBNamed           numa_node  RowCnt       FreeSpaceBytes  Capa_KB
     ----------------  ---------  -----------  --------------  --------------------
@@ -577,21 +577,14 @@ SELECT COUNT(*)AS cached_pages_count
 FROM sys.dm_os_buffer_descriptors AS bd   
     INNER JOIN   
     (  
-        SELECT object_name(object_id) AS name   
-            ,index_id ,allocation_unit_id  
-        FROM sys.allocation_units AS au  
-            INNER JOIN sys.partitions AS p   
-                ON au.container_id = p.hobt_id   
-                    AND (au.type = 1 OR au.type = 3)  
+        SELECT object_name(object_id) AS name, index_id, allocation_unit_id  
+        FROM sys.allocation_units au  
+            INNER JOIN sys.partitions AS p   ON au.container_id = p.hobt_id AND (au.type = 1 OR au.type = 3)  
         UNION ALL  
-        SELECT object_name(object_id) AS name     
-            ,index_id, allocation_unit_id  
-        FROM sys.allocation_units AS au  
-            INNER JOIN sys.partitions AS p   
-                ON au.container_id = p.partition_id   
-                    AND au.type = 2  
-    ) AS obj   
-        ON bd.allocation_unit_id = obj.allocation_unit_id  
+        SELECT object_name(object_id) AS name, index_id, allocation_unit_id  
+        FROM sys.allocation_units au  
+            INNER JOIN sys.partitions AS p   ON au.container_id = p.partition_id AND au.type = 2  
+    ) obj           ON bd.allocation_unit_id = obj.allocation_unit_id  
 WHERE database_id = DB_ID()  
 GROUP BY name, index_id   
 ORDER BY cached_pages_count DESC;      
@@ -610,19 +603,19 @@ SQL Server의 대부분 메모리는 버퍼 캐시 부분이고 많은 프로세
 SELECT *
 FROM sys.dm_os_memory_brokers
 
-    pool_id  memory_broker_type                  allocations_kb  allocations_kb_per_sec  predicted_allocations_kb  target_allocations_kb
-    -------  ----------------------------------  --------------  ----------------------  ------------------------  ---------------------
-    1        MEMORYBROKER_FOR_CACHE              542560          -4502                   542560                    55034560
-    1        MEMORYBROKER_FOR_STEAL              206328          0                       206328                    54698328
-    1        MEMORYBROKER_FOR_RESERVE            0               0                       0                         54492000
-    1        MEMORYBROKER_FOR_COMMITTED          16204904        0                       16204904                  70696904
-    1        MEMORYBROKER_FOR_HASHED_DATA_PAGES  0               0                       0                         54492000
-    1        MEMORYBROKER_FOR_XTP                2856            0                       2856                      54494856
-    2        MEMORYBROKER_FOR_CACHE              8594736         66                      8595000                   63087000
-    2        MEMORYBROKER_FOR_STEAL              52096           -326                    52096                     54544096
-    2        MEMORYBROKER_FOR_RESERVE            37072           416                     19518976                  74010976
-    2        MEMORYBROKER_FOR_HASHED_DATA_PAGES  0               0                       0                         54492000
-    2        MEMORYBROKER_FOR_XTP                0               0                       0                         54492000    
+    pool_id memory_broker_type                 allocations_kb allocations_kb_per_sec predicted_allocations_kb  target_allocations_kb
+    ------- ---------------------------------- -------------- ---------------------- ------------------------  ---------------------
+    1       MEMORYBROKER_FOR_CACHE             542560         -4502                  542560                    55034560
+    1       MEMORYBROKER_FOR_STEAL             206328         0                      206328                    54698328
+    1       MEMORYBROKER_FOR_RESERVE           0              0                      0                         54492000
+    1       MEMORYBROKER_FOR_COMMITTED         16204904       0                      16204904                  70696904
+    1       MEMORYBROKER_FOR_HASHED_DATA_PAGES 0              0                      0                         54492000
+    1       MEMORYBROKER_FOR_XTP               2856           0                      2856                      54494856
+    2       MEMORYBROKER_FOR_CACHE             8594736        66                     8595000                   63087000
+    2       MEMORYBROKER_FOR_STEAL             52096          -326                   52096                     54544096
+    2       MEMORYBROKER_FOR_RESERVE           37072          416                    19518976                  74010976
+    2       MEMORYBROKER_FOR_HASHED_DATA_PAGES 0              0                      0                         54492000
+    2       MEMORYBROKER_FOR_XTP               0              0                      0                         54492000    
 ```
 
 자세한 것은 설명서를 찾아보고 중요한 내용만 설명한다
@@ -644,7 +637,6 @@ SELECT top 10 [type], memory_node_id, sum(pages_kb) pages_kb
 FROM sys.dm_os_memory_clerks
 GROUP BY [type], memory_node_id
 order BY pages_kb desc
-
 
     type                           memory_node_id pages_kb
     ------------------------------ -------------- --------------------
@@ -732,8 +724,8 @@ order BY pages_kb desc
 
 ## 2.6 메모리 병목 해결 방법
 
-<img src = "image/MemoryDia1.png" width="70%">   
-<img src = "image/MemoryDia2.png" width="70%">   
+<img src = "image/MemoryDia1.png" width="100%">   
+<img src = "image/MemoryDia2.png" width="100%">   
 
 메모리 병목 해결을 위한 몇가지 공통적인 해결책
 
