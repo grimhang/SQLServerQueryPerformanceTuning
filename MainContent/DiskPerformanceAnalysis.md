@@ -116,3 +116,5 @@ WHERE wait_type LIKE 'PAGEIOLATCH%';
 
 PAGEIOLATCH% 와 같이 IO와 관련된 조건(WRITELOG, LOGBUFFER, ASYCN_IO_COMPLETION)을 검색해서 다른 I/O 대기도 조사할 수 있다.   
 이 DMV는 총 시간과 합계를 나타나기 때문에 가장 긴 대기시간이 무엇인지 알 수 있다.
+
+## 3.3 디스크 병목 해결방법
