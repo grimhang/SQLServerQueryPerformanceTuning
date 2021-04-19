@@ -101,7 +101,7 @@ ORDER BY io_stall_read_ms desc
         - 상위 10개의 I/O 나쁜 데이터파일을 별도의 물리디스크로 서로 분산 전략 (현재 이 DB는 한군데에 몰려있다.)
 */  
 ```
-sample_ms 정수형값. SQL Server 최근 기동시간이 아주 오래 전이라면 음수 값이 나올수 있음. 대략 10개월정도. 현재 나의 SQL Server은 2014.
+sample_ms는 정수형값이기에 SQL Server 최근 기동시간이 아주 오래 전이라면 이 값이 음수가 나올 수 있다. 대략 10개월정도. 현재 나의 SQL Server은 2014.
 
 ### * sys.dm_os_wait_stats
 SQL Server에서 모든 대기현상을 알아내는데 일반적으로 사용하는 DMO. I/O 병목을 식별하는데도 유용하며 다음과 같이 사용한다.
