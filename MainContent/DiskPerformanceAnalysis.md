@@ -112,7 +112,7 @@ SELECT *
 FROM sys.dm_os_wait_stats AS dows
 WHERE wait_type LIKE 'PAGEIOLATCH%';
 ```
-위 쿼리는 대기를 발생시키는 다양한 I/O 래치를 찾을 수 있다. sys.dm_io_virtual_file_stats 처럼 이 DMO에서 I/O문제를 발생시키는 특정한 쿼리를 얻을수는 없다. 성능카운터처럼 문제의 수치를 직관적으로 얻을 수 없고 현재 값을 기존 베이스라인 데이터와 비교하여 판단하여야 한다.
+위 쿼리는 대기를 발생시키는 다양한 I/O 래치를 찾을 수 있다. sys.dm_io_virtual_file_stats와 마찬가지로 이 DMO에서 I/O문제를 발생시키는 특정한 쿼리를 얻을수는 없다. 또한 성능카운터처럼 문제의 수치를 직관적으로 얻을 수 없고 현재 값을 기존 베이스라인 데이터와 비교하여 판단하여야 한다.
 
 PAGEIOLATCH% 와 같이 IO와 관련된 조건(WRITELOG, LOGBUFFER, ASYCN_IO_COMPLETION)을 검색해서 다른 I/O 대기도 조사할 수 있다.   
 이 DMV는 총 시간과 합계를 나타나기 때문에 가장 긴 대기시간이 무엇인지 알 수 있다.
