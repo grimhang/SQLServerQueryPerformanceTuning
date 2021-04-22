@@ -154,7 +154,7 @@ RAID 0
     따라서 tempdb와 같은 임시 데이터베이스를 제외하곤 실제의 데이터파일이나 트랜잭션 로그 파일용으로 사용하면 안된다.  
     RAID 0에서 디스크 당 I/O 수치는 아래와 같이 계산 된다.
 
-    디스크 당 I/O = (Reads + Writes) / 어레이의 디스크수
+    => 디스크당 I/O 개수 = (Reads + Writes) / 어레이의 디스크수
 
 RAID 1  
     데이터를 별도의 디스크에 똑같이 복제하기때문에 높은 수준의 내결함성을 제공한다. 물리적으로 한 디스크에 전체 데이터를 유지하려 할때 사용될 수 있다. 예를 들면 트랜잭션 로그 파일, OS 시스템 파일, SQL Server 시스템 데이터베이스(master, msdb)의 경우가 그러하며 RAID 1으로 사용하기 위하여 충분히 작은 경우가 대부분. 디스크를 두배로 사야 하기 때문에 비용도 두배여서 작은 용량의 데이터에 적합.
@@ -165,17 +165,17 @@ RAID 1
 RAID 5  
     RAID 5는 여러 경우에 좋은 옵션이다. RAID 0의 구조를 기반으로 단지 디스크 하나만 추가하여 효율적인 내결함성을 제공합니다. 
     5개의 디스크이 있다면 다음과 같이 데이터를 저장하는 구조이다
-        
-        data        data        data        data        [parity]
-        data        data        data        [parity]    data
-        data        data        [parity]    data        data
-        data        [parity]    data        data        data
-        [parity]    data        data        data        data
-
+    
+    data        data        data        data        [parity]
+    data        data        data        [parity]    data
+    data        data        [parity]    data        data
+    data        [parity]    data        data        data
+    [parity]    data        data        data        data
+    
     그렇기 때문에 사실 데이터는 4개의 디스크만큼만 저장되고 디스크 1개만큼의 용량은 내결함성을 위한 패러티 저장용이다.  
     RAID 5 구성에서 디스크 오류가 발생하면 시스템이 작동하는 동안 계속 사용할 수 있지만 실패한 디스크때문에 I/O 성능이 매우 저하된다.
 
-    쓰기가 총 디스크 작업의 10% 이상을 차지하는 경우라면 RAID 5는 적합한 방법은 아니다. 따라서 읽기 전용 볼률이나 디스크 쓰기 비율이 낮은 상황에 RAID5를 사용해야 한다. 
+    쓰기가 총 디스크 작업의 10% 이상을 차지하는 경우라면 RAID 5는 적합한 방법은 아니다. 따라서 읽기 전용 볼륨이나 디스크 쓰기 비율이 낮은 상황에 RAID5를 사용해야 한다. 
 
     => 디스크당 I/O 개수 = (Reads + 4 x Writes) / 디스크 개수
 
