@@ -145,7 +145,7 @@ PAGEIOLATCH% 와 같이 IO와 관련된 조건(WRITELOG, LOGBUFFER, ASYCN_IO_COM
     * RAID 5 : 패러티 있는 스트라이프 셋
     * RAID 1 + 0 : 미러링 있는 스트라이프 셋. RAID 10(ten) 이라고 보통 부름.
 
-그림
+<img src = "image/RAIDDesc.png" width="80%">
 
 RAID 0  
     stripe set without parity. 내결함성이 없는 구성이므로 데이터 안정성이 중요하지 않은 상황에서만 사용한다. 어레이 상의 한 디스크가 실패하면 데이터가 완전히 유실된다.
