@@ -16,6 +16,7 @@
 정말 좋은 책이지만 내가 저작권을 어길 수 없기 때문에 아쉽게도 정리본 정도로만 기록할 것이고 혹시나 나중에 문제 되면 말없이
 삭제 예정이다.
 
+문의 : 박성출 grimhan골뱅이daum.net
 
 SQL Server Query Performance Tuning 4th Edition [book link](https://www.amazon.com/SQL-Server-Query-Performance-Tuning-ebook/dp/B01JC6P8MC)
 
