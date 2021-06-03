@@ -12,8 +12,8 @@ SQL Server OLTP 프로덕션 환경에서 네트워크와 관련된 문제는 �
 ```
 Object(Instance)                 Counter             Description                             Value
 -------------------------------  --------------      -------------------------------------   --------------------------------------
-Network Interface(Network card)  Bytes Total/sec     NIC에서 전송된 총 바이트                  50% < NIC 용량. 하지만 베이스라인 참고
-Network Segment                  % Net Utilization   네트워크 세그먼트에서 사용중 대역폭 %      평균 < 80%. 하지만 베이스라인 참고
+Network Interface(Network card)  Bytes Total/sec     NIC에서 전송된 총 바이트                 50% < NIC 용량. 하지만 베이스라인 참고
+Network Segment                  % Net Utilization   네트워크 세그먼트에서 사용중 대역폭 %     평균 < 80%. 하지만 베이스라인 참고
 ```
 
 ### * Bytes Total/Sec
