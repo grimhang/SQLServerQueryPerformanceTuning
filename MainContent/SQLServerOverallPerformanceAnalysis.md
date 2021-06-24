@@ -46,6 +46,8 @@ SQLServer:Access Methods     Full Scans/sec
 
 임시 테이블에 인덱스가 없어서 대부분의 시간동안 풀스캔을 하는 저장 프로 시저에서도 이 카운터가 도움이 된다.
 
+-- 여기까지 작업
+
 
 ### * Dynamic Management Objects
 누락 된 인덱스를 확인하는 또 다른 방법은 동적 관리 뷰 sys.dm_db_missing_index_details를 쿼리하는 것입니다.
