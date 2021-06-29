@@ -70,7 +70,7 @@ SQLServer:Locks(_Total)      Lock Timeouts/sec
 ### * Total Latch Wait Time (ms)
 래치는 테이블 행과 같은 데이터 구조의 무결성을 보호하기 위해 SQL Server에서 내부적으로 사용되며 사용자가 직접 제어할 수 없다. 이 카운터는 최근의(마지막 1 초 동안) 대기한 총 래치 대기 시간 (밀리 초)이다. 이 카운터 값이 높으면 SQL Server가 내부 동기화 메커니즘을 기다리는데 너무 많은 시간을 소비하고 있음을 나타낸다.
 
-### * Lock Timeouts/Sec and Lock Wait Time (ms)
+### * Lock Timeouts/Sec, Lock Wait Time (ms)
 일반적으로 WAS나 클라이언트 어플리케이션을 운영하는 담당자들한테 "타임아웃이 많이 걸려 문제가 심각해요" 라는 말을 많이 듣는데 이때 같은 용어를 써도 서로가 느끼는 용어의 의미가 달라서 동문서답하는 경우가 많다.
 
     개발자 : 클라이언트 어플리케이션에서 쿼리가 중단되며 에러로그에 타임아웃이라고 찍혔기 때문에 DB타임아웃이라고 생각한다.
