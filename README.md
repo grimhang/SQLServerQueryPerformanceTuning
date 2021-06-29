@@ -26,26 +26,29 @@ SQL Server Query Performance Tuning 4th Edition [book link](https://www.amazon.c
 2. Memory Performance Analysis
 3. Disk Performance Analysis
 4. CPU Performance Analysis
-5. Creating a Baseline
-6. Query Performance Metrics
-7. Analyzing Query Performance
-8. Index Architecture and Behavior 
-9. Index Analysis
-10. Database Engine Tuning Advisor
-11. Key Lookups and Solutions
-12. Statistics, Data Distribution, and Cardinality
-13. Index Fragmentation
-14. Execution Plan Generation
-15. Execution Plan Cache Behavior
-16. Parameter Sniffing
-17. Query Recompilation
-18. Query Design Analysis
-19. Reduce Query Resource Use
-20.  Blocking and Blocked Processes
-21. Causes and Solutions for Deadlocks
-22. Row-by-Row Processing
-23. Memory-Optimized OLTP Tables and Procedures
-24. Database Performance Testing
-25. Database Workload Optimization
-26.  SQL Server Optimization Checklist
+5. Network Performance Analysis
+
+6. SQL Server All Performance
+7. Creating a Baseline
+8. Query Performance Metrics
+9. Analyzing Query Performance
+10. Index Architecture and Behavior 
+11. Index Analysis
+12. Database Engine Tuning Advisor
+13. Key Lookups and Solutions
+14. Statistics, Data Distribution, and Cardinality
+15. Index Fragmentation
+16. Execution Plan Generation
+17. Execution Plan Cache Behavior
+18. Parameter Sniffing
+19. Query Recompilation
+20. Query Design Analysis
+21. Reduce Query Resource Use
+22.  Blocking and Blocked Processes
+23. Causes and Solutions for Deadlocks
+24. Row-by-Row Processing
+25. Memory-Optimized OLTP Tables and Procedures
+26. Database Performance Testing
+27. Database Workload Optimization
+28.  SQL Server Optimization Checklist
 
