@@ -99,35 +99,35 @@ processor queue length와 같은 queue 카운터들은 VM에서도 그대로 적
 이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
 <img src = "image/DataCollectorSet01.PNG" width="45%">
 
-    어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다
+어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다
 <img src = "image/DataCollectorSet02.PNG" width="45%">
 
-    원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다
+원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다
 <img src = "image/DataCollectorSet03.PNG" width="45%">    
 
-    데이터를 저장할 폴더를 지정하고 다음을 누른다
+데이터를 저장할 폴더를 지정하고 다음을 누른다
 <img src = "image/DataCollectorSet04.PNG" width="45%">    
 
-    실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다
+실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다
 <img src = "image/DataCollectorSet05.PNG" width="45%">        
 
-    만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
-    다음과 같이 시작일정을 추가할수 있다.
+만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
+다음과 같이 시작일정을 추가할수 있다.
 <img src = "image/DataCollectorSetSchedule01.PNG" width="45%">
 
-    중지조건도 지정해 얼마만큼만 실행될지 정할수 있다.
+중지조건도 지정해 얼마만큼만 실행될지 정할수 있다.
 <img src = "image/DataCollectorSetSchedule02.PNG" width="45%">     
 
-    결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
-    만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.
+결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
+만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.
 <img src = "image/DataCollectorSet06.PNG" width="45%">     
 
-    파일명 DataCollector01을 바꿀수 있다.
+파일명 DataCollector01을 바꿀수 있다.
 <img src = "image/DataCollectorSet07.PNG" width="45%">     
 
 
-    추가적인 성능 모니터 사용 지침을 사용해 좀더 자세한 내용을 살펴 볼수 있다.
- [Windows Server 2022의 성능 튜닝 지침](https://docs.microsoft.com/ko-kr/windows-server/administration/performance-tuning/)
+추가적인 성능 모니터 사용 지침을 사용해 좀더 자세한 내용을 살펴 볼수 있다.
+[Windows Server 2022의 성능 튜닝 지침](https://docs.microsoft.com/ko-kr/windows-server/administration/performance-tuning/)
 
 ### C. 성능 모니터 오버헤드 최소화
 성능 모니터는 오버헤드를 최소화하도록 만들어졌지만 그래도 시스템 영향을 적게 받게 하지 위해서 다음과 같은 고려사항이 있다.
