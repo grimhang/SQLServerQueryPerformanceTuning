@@ -101,7 +101,7 @@ processor queue length와 같은 queue 카운터들은 VM에서도 그대로 적
 <img src = "image/07/DataCollectorSet01.PNG" width="45%" border="5">
 
 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다
-<img src = "image/07/DataCollectorSet02.PNG" width="45%">
+<img src = "image/07/DataCollectorSet02.PNG" width="45%" border="5">
 
 원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다
 <img src = "image/07/DataCollectorSet03.PNG" width="45%">    
