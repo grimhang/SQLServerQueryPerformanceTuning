@@ -98,10 +98,10 @@ processor queue length와 같은 queue 카운터들은 VM에서도 그대로 적
 
 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
 이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-<img src = "image/07/CounterLog01.PNG" width="45%" border="5">
+<img src = "image/07/CounterLog01.PNG" width="45%">
 
 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다.  
-<img src = "image/07/CounterLog02.PNG" width="45%" border="5">
+<img src = "image/07/CounterLog02.PNG" width="45%">
 
 원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다.  
 <img src = "image/07/CounterLog03.PNG" width="45%">    
