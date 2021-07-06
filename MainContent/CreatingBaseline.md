@@ -114,10 +114,10 @@ processor queue length와 같은 queue 카운터들은 VM에서도 그대로 적
 
 만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
 다음과 같이 시작일정을 추가할수 있다.  
-<img src = "image/07/DataCollectorSetSchedule01.PNG" width="45%">
+<img src = "image/07/CounterLogSchedule01.PNG" width="45%">
 
 중지조건도 지정해 얼마만큼만 실행될지 정할수 있다.  
-<img src = "image/07/DataCollectorSetSchedule02.PNG" width="45%">     
+<img src = "image/07/CounterLogSchedule02.PNG" width="45%">     
 
 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
 만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
