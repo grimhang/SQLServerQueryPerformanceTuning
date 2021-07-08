@@ -95,7 +95,6 @@ Baseline(베이스라인) 데이터란 해당 서버에 평소상태의 평균 �
 
 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
 이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-
 <img src = "image/07/CounterLog01.PNG" width="45%">
 
 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다.  
@@ -120,9 +119,9 @@ Baseline(베이스라인) 데이터란 해당 서버에 평소상태의 평균 �
 
 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
 만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
-<img src = "image/07/CounterLog06.PNG" width="45%">     
+<img src = "image/07/CounterLog06.PNG" width="45%"> 
 
-파일명 DataCollector01을 바꿀수 있다.  
+로그 파일명 DataCollector01을 바꿀수 있다.  
 <img src = "image/07/CounterLog07.PNG" width="45%">     
 
 
