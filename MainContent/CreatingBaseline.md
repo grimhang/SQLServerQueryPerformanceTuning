@@ -226,10 +226,10 @@ Azure SQL Database에서는 "성능 모니터" 같은 기존 툴을 사용 하�
 
     - Azure Portal을 사용
       DTU 사용을 모니터링하기 위한 메커니즘을 제공하지만 베이스라인을 설정하는 메커니즘은 제공하지 않는다.
-      그럴때는 Azure SQL Database 관련 DMV인 sys.dm_db_resource_stats를 사용해야 한다. 이 DMV는 지정된 Azure SQL Database의 
-      DTU 사용량에 대한 정보를 유지한다. 15 분 단위로 1 시간 분량의 정보를 포함한다. SQL Server 인스턴스에서와 같이 베이스라인을
-      설정하려면 시간이 지남에 따라 변화하는 이 데이터를 캡처해야 한다. sys.dm_db_resource_stats에 표시된 정보를 테이블로 수집한 후 
-      Azure SQL Database의 성능 메트릭에 대한 베이스라인을 설정할 수 있다.
+      그럴때는 Azure SQL Database 관련 DMV인 sys.dm_db_resource_stats를 사용해야 한다.
+      이 DMV는 지정된 Azure SQL Database의 DTU 사용량에 대한 정보를 유지한다. 15 분 단위로 1 시간 분량의 정보를 포함한다.
+      SQL Server 인스턴스에서와 같이 베이스라인을 설정하려면 시간이 지남에 따라 변화하는 이 데이터를 캡처해야 한다. 
+      sys.dm_db_resource_stats에 표시된 정보를 테이블로 수집한 후 Azure SQL Database의 성능 메트릭에 대한 베이스라인을 설정할 수 있다.
 
 Azure SQL Database에는 기본적으로 쿼리 저장소가 활성화되어 있으므로 이를 사용하여 시스템에서 일어나는 일을 이해할 수 있다.
 
