@@ -213,24 +213,23 @@ Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/
 ## <font color="dodgerblue" size="6">4) Azure SQL Database의 베이스라인</font>
 물리 머신이나 가상 머신이든 모든 SQL Server 인스턴스의 베이스라인이 필요한 것처럼 Azure SQL Database 역시 성능 베이스라인을 만들어야 한다.
 하지만 PaaS(서비스로서의 데이터베이스) 제품이기 때문에 OS가 설치된 가상 머신 또는 물리적 서버가 존재하지 않는다. 당연하게도 성능 모니터같은 기존 툴을 사용할 수 없기 않기 때문에 기존방법 대체한 방법을 찾아야 한다.
+
 하지만 실제 물리적인 CPU 또는 디스크의 사용량을 측정하지 못하는 대신 Microsoft에서 정의한 DTU(데이터베이스 트랜잭션 단위)라는 성능 측정 단위를 사용해야 한다. Azure Portal같은 도구를 통해 시간이 지남에 따라 데이터베이스의 DTU 동작 활동을 관찰 할 수 있다.
 
-DTU는 I/O, CPU 및 메모리를 묶어서 특정 성능치로 구현하는 서비스 레벨이며 Azure에서만 존재하는 개념이다. 예를 들면 50DTU면 250GB스토리지와 1200개의 동시세션까지 가능한 것이다. 그 이상의 스펙을 원한다면 DTU도 상위것을 선택해야 한다.  
+DTU는 I/O, CPU 및 메모리를 묶어서 특정 성능치로 구현하는 서비스 레벨이며 Azure에서만 존재하는 개념이다. 예를 들면 50 DTU면 250GB스토리지와 1200개의 동시세션까지 가능한 것이다. 그 이상의 스펙을 원한다면 DTU도 상위것을 선택해야 한다.  
 
-<font size="5"> DTU 모니터링 방법</font>  
-Azure SQL Database에서는 "성능 모니터" 같은 기존 툴을 사용 하지 못하기 때문에 CPU 사용량과 스토리지같은 리소스 사용량을 확인하는 방법이 몇 가지 있다.
+<font size="4"> DTU 모니터링 방법</font>  
+Azure SQL Database에서는 "성능 모니터" 같은 기존 툴을 사용 하지 못하기 때문에 이를 대신해 사용할 수 있는 몇 가지 방법이 몇 가지 있다.
 
     - sys.resource_stats를 쿼리하는 방법.
-      14 일 실행 기록을 유지하고 5 분 간격으로 데이터를 집계하여 저장한다.
+      14 일 실행 기록을 유지하고 5 분 간격으로 데이터를 집계하여 저장된다.
 
     - Azure Portal을 사용
-        DTU 사용을 모니터링하기 위한 메커니즘을 제공하지만 베이스라인을 설정하는 메커니즘은 제공하지 않는다. 그럴때는 Azure SQL Database 관련 DMV인 sys.dm_db_resource_stats를 사용해야 한다. 이 DMV는 지정된 Azure SQL Database의 DTU 사용량에 대한 정보를 유지한다. 15 분 단위로 1 시간 분량의 정보를 포함한다. SQL Server 인스턴스에서와 같이 베이스라인을 설정하려면 시간이 지남에 따라 변화하는 이 데이터를 캡처해야 한다. sys.dm_db_resource_stats에 표시된 정보를 테이블로 수집한 후 Azure SQL Database의 성능 메트릭에 대한 베이스라인을 설정할 수 있다.
-
-    - 테스트
-      adkbkdjfkdjfkdjf
-      dfadf   
-      cccc
-
+      DTU 사용을 모니터링하기 위한 메커니즘을 제공하지만 베이스라인을 설정하는 메커니즘은 제공하지 않는다.
+      그럴때는 Azure SQL Database 관련 DMV인 sys.dm_db_resource_stats를 사용해야 한다. 이 DMV는 지정된 Azure SQL Database의 
+      DTU 사용량에 대한 정보를 유지한다. 15 분 단위로 1 시간 분량의 정보를 포함한다. SQL Server 인스턴스에서와 같이 베이스라인을
+      설정하려면 시간이 지남에 따라 변화하는 이 데이터를 캡처해야 한다. sys.dm_db_resource_stats에 표시된 정보를 테이블로 수집한 후 
+      Azure SQL Database의 성능 메트릭에 대한 베이스라인을 설정할 수 있다.
 
 Azure SQL Database에는 기본적으로 쿼리 저장소가 활성화되어 있으므로 이를 사용하여 시스템에서 일어나는 일을 이해할 수 있다.
 
