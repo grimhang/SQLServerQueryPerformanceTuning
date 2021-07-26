@@ -3,21 +3,21 @@ sort: 7
 ---
 
 # Baseline 생성
-Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/측정 해 두는 것을 말한다. 나중에 문제발생시 이와 비교하여 차이가 많이 나면 문제 부분을 바로 알 수 있는 장점이 있으며 모든 서버는 베이스라인 데이터가 1개는 존재해야 한다.
+Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해 두는 것을 말한다. 나중에 문제발생시 이와 비교하여 차이가 많이 나면 문제 부분을 바로 알 수 있는 장점이 있기 때문에 모든 서버는 베이스라인 데이터가 1개는 존재해야 한다.
  
-이번 장에서는 주로 베이스라인 데이터를 만들기 위해 주기적으로 성능 데이터를 수집하고 이를 자동화 하는 방법을 같이 소개한다.  
+이번 장에서는 주로 베이스라인 데이터를 만들기 위해 주기적으로 성능 데이터를 수집하고 이를 자동화 하는 방법도 같이 소개한다.  
 
 성능모니터에서 성능데이터를 수집하여 파일로 저장하는 기능을 "데이터 수집기 집합"이라고 하는데 예전에는 이를 "카운터 로그" 라고 불렀다. 이 책에서의 많은 부분에서 카운터 로그라는 명칭으로 설명하는데 우리는 "데이터 수집기 집합"이라고 찰떡같이 이해하자.  
 
 이번 장에서는 다음과 같은 내용을 설명한다.
 
-    * 가상 또는 실제 머신을 모니터링 할때 고려사항
+    * 가상 머신 혹은 실제 머신을 모니터링 할때 고려사항
     * 성능 모니터의 성능 수치를 수집하는 자동화된 세팅 방법
     * 성능모니터를 사용할때 조심해야 할 점
     * Azure SQL Database를 사용할때의 Baseline
     * 베이스라인 만들기
 
-## <font color='dodgerblue' size="6">1) 가상 또는 실제 머신을 모니터링 할때 고려사항</font>
+## <font color='dodgerblue' size="6">1) 가상 머신 혹은 실제 머신을 모니터링 할때 고려사항</font>
 최근에는 가상환경에서 SQL Server를 운용하는 경우가 많아지는 추세인데 이유는 다음과 같다.
 
     * AWS, MS Azure와 같은 퍼플릭 클라우드로 이전하는 회사들이 급격히 증가.
@@ -31,7 +31,7 @@ Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/
     * VMWare 성능 모니터링 안내(http://bit.ly/1f37tEh)
     * Hyper-V 성능 모니터링 안내(http://bit.ly/2y2U6Iw)
 
-"processor queue length" 와 같은 queue 종류의 카운터들은 VM환경에서도 유효하다. 왜냐하면 물리적인 성능 부족이든, 가상의 성능 부족이든 어쨌든 그 위에서 돌아가는 SQL Server 입장에서는 리소스 부족으로 인하여 대기하여야 하기 때문이다.
+"processor queue length" 와 같은 queue 종류의 카운터들은 VM환경에서도 유효하다. 왜냐하면 물리적인 머신의 성능 부족이든, 가상서버의 성능 부족이든 어쨌든 그 위에서 돌아가는 SQL Server 입장에서는 리소스 부족으로 인하여 대기하여야 하기 때문이다.
 
 또한 Azure SQL Database 및 SQL Server 2016 이상에는 쿼리 저장소라고 하는 기본으로 내장된 자동화 된 베이스라인 메커니즘이 있다. 11 장에서 쿼리 저장소에 대해 자세히 다룰 것이다.
 
@@ -53,62 +53,63 @@ Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/
     단축키 ctrl + N 을 눌러도 됨. "다음 컴퓨터에서 카운터 선택" 부분은 기본적으로 "로컬 컴퓨터"로 선택되어 있다.  
     <img src = "image/07/CounterLog00.PNG" width="55%">
 
-    예제) SQLServer:Latches:Total Latch Wait Time(ms) 수집해보자
+    - 샘플로 SQLServer:Latches:Total Latch Wait Time(ms) 수집해보자
 
-    - 카운터에서 SQLServer:Latches 카운터를 선택한다.
+        - 카운터에서 SQLServer:Latches 카운터를 선택한다.
 
-    - 아래 화살표를 누르면 하위 카운터들이 나열되는데 "Total Latch Wait Time(ms)"를 선택.
+        - 아래 화살표를 누르면 하위 카운터들이 나열되는데 "Total Latch Wait Time(ms)"를 선택.
 
-    - "선택한 개체의 인스턴스"에서 _Total이 기본적으로 선택되어 있고 "추가" 버튼을 누르면 오른쪽 영역(추가된 카운터)에 추가된다.
+        - "선택한 개체의 인스턴스"에서 _Total이 기본적으로 선택되어 있고 "추가" 버튼을 누르면 오른쪽 영역(추가된 카운터)에 추가된다.
 
-    - "확인" 버튼을 눌러 최종 완료.    
+        - "확인" 버튼을 눌러 최종 완료.    
   
-재사용가능한 항목의 베이스라인을 만들때 아래와 같은 리스트를 반복해서 지정
+    
+    - 베이스라인을 재사용하도록 할때 아래와 같은 리스트를 반복해서 지정
 
+        ```
+        Object(Instance)                    Counter
+        ----------------------------------  ----------------------------------------------------
+        Memory                              Available MBytes
+                                            Pages/sec
+        PhysicalDisk(Data-disk, Log-disk)   % Disk Time
+                                            Current Disk Queue Length
+                                            Disk Transfers/sec
+                                            Disk Bytes/sec     
+        Processor(_Total)                   % Processor Time
+                                            % Privileged Time
+        System                              Processor Queue Length
+                                            Context Switches/sec
+        Network Interface(Network card)     Bytes Total/sec
+        Network Segment                     % Net Utilization
+        SQLServer:Access Methods            FreeSpace Scans/sec
+                                            Full Scans/sec
+        SQLServer:Buffer Manager            Buffer cache hit ratio
+        SQLServer:Latches                   Total Latch Wait Time (ms)
+        SQLServer:Locks(_Total)             Lock Timeouts/sec
+                                            Lock Wait Time (ms)
+                                            Number of Deadlocks/sec
+        SQLServer:Memory Manager            Memory Grants Pending
+                                            Target Server Memory (KB)
+                                            Total Server Memory (KB)
+        SQLServer:SQL Statistics            Batch Requests/sec
+                                            SQL Re-Compilations/sec
+        SQLServer:General Statistics        User Connections
+        ```
 
-    Object(Instance)                    Counter
-    ----------------------------------  ----------------------------------------------------
-    Memory                              Available MBytes
-                                        Pages/sec
-    PhysicalDisk(Data-disk, Log-disk)   % Disk Time
-                                        Current Disk Queue Length
-                                        Disk Transfers/sec
-                                        Disk Bytes/sec     
-    Processor(_Total)                   % Processor Time
-                                        % Privileged Time
-    System                              Processor Queue Length
-                                        Context Switches/sec
-    Network Interface(Network card)     Bytes Total/sec
-    Network Segment                     % Net Utilization
-    SQLServer:Access Methods            FreeSpace Scans/sec
-                                        Full Scans/sec
-    SQLServer:Buffer Manager            Buffer cache hit ratio
-    SQLServer:Latches                   Total Latch Wait Time (ms)
-    SQLServer:Locks(_Total)             Lock Timeouts/sec
-                                        Lock Wait Time (ms)
-                                        Number of Deadlocks/sec
-    SQLServer:Memory Manager            Memory Grants Pending
-                                        Target Server Memory (KB)
-                                        Total Server Memory (KB)
-    SQLServer:SQL Statistics            Batch Requests/sec
-                                        SQL Re-Compilations/sec
-    SQLServer:General Statistics        User Connections
+    - 모든 성능 카운터를 추가했으면 확인을 클릭하여 카운터 추가 대화 상자를 닫습니다.  
+    <캡처 화면
 
+    - 카운터 항목 저장  
+      그래픽 UI화면에서 매번 성능 카운터를 추가하는 것은 매우 피곤한 작업이기 때문에 이 리스트를 저장해 놓고 다음부터는 불러오기만 하면 되는것이다. 카운터 목록을 .htm 파일로 저장하기위해 성능 모니터의 오른쪽 프레임을 마우스 오른쪽 단추로 클릭하고 다른 이름으로 설정 저장 메뉴 항목을 선택합니다.  
+      .htm 파일에는 카운터 로그를 만들거나 동일한 SQL Server 컴퓨터에 대한 성능 모니터 그래프를 대화 형으로보기 위해 기본 카운터 집합으로 사용할 수있는 모든 성능 카운터가 나열됩니다. 다른 SQL Server 컴퓨터에 대해이 카운터 목록을 사용하려면 메모장과 같은 편집기에서 .htm 파일을 열고 \\ SQLServerMachineName의 모든 인스턴스를 아무 것도없이 (빈 문자열 만) 바꿉니다.
 
-모든 성능 카운터를 추가했으면 확인을 클릭하여 카운터 추가 대화 상자를 닫습니다.  
-<캡처 화면
+    이 모든 것에 대한 지름길은 Erin Stellato가 "성능 모니터에 대한 기본 카운터 사용자 지정"(http://bit.ly/1brQKeZ) 기사에서 설명합니다. 또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하여 이러한 데이터 중 일부를보다 쉽게 처리 할 수 있습니다.
 
-그래픽 UI로 볼때마다 성능 카운터를 매번 추가하는 것은 매우 피곤한 작업이기 때문에 이 리스트를 저장해 놓고 다음부터는 불러오기만 하면 되는것이다. 카운터 목록을 .htm 파일로 저장하기위해 성능 모니터의 오른쪽 프레임을 마우스 오른쪽 단추로 클릭하고 다른 이름으로 설정 저장 메뉴 항목을 선택합니다.
-
-.htm 파일에는 카운터 로그를 만들거나 동일한 SQL Server 컴퓨터에 대한 성능 모니터 그래프를 대화 형으로보기 위해 기본 카운터 집합으로 사용할 수있는 모든 성능 카운터가 나열됩니다. 다른 SQL Server 컴퓨터에 대해이 카운터 목록을 사용하려면 메모장과 같은 편집기에서 .htm 파일을 열고 \\ SQLServerMachineName의 모든 인스턴스를 아무 것도없이 (빈 문자열 만) 바꿉니다.
-
-이 모든 것에 대한 지름길은 Erin Stellato가 "성능 모니터에 대한 기본 카운터 사용자 지정"(http://bit.ly/1brQKeZ) 기사에서 설명합니다. 또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하여 이러한 데이터 중 일부를보다 쉽게 처리 할 수 있습니다.
-
-또한 이 카운터 목록 .htm 파일을 인터넷 브라우저에서 열면 아래 그림과 같이 그래픽적으로 성능 모니터 그래프를 볼 수 있습니다.  
-성능카운터 캡처필요
+    또한 이 카운터 목록 .htm 파일을 인터넷 브라우저에서 열면 아래 그림과 같이 그래픽적으로 성능 모니터 그래프를 볼 수 있습니다.  
+    성능카운터 캡처필요
 
 - ### b. 성능카운터 리스트를 사용한 카운터 로그 만들기
-    성능 모니터는 일정 기간 동안 여러 카운터의 성능 데이터를 저장하는 카운터 로그 기능을 제공합니다. 성능 모니터를 사용하여 저장된 카운터 로그를 보고 성능 데이터를 분석 할 수 있습니다. 일반적으로 정의 된 성능 카운터 목록에서 카운터 로그를 만드는 것이 편리합니다. GUI를 통해 데이터를 보는 것보다 단순히 데이터를 수집하는 것이 서버 성능 문제 해결을 준비하거나 기준을 설정하는 데 선호되는 자동화 방법입니다.
+    성능 모니터는 일정 기간 동안 여러 카운터의 성능 데이터를 저장하는 카운터 로그 기능을 제공한다. 성능 모니터를 사용하여 저장된 카운터 로그를 보고 성능 데이터를 분석 할 수 있다. 일반적으로 정의 된 성능 카운터 목록에서 카운터 로그를 만드는 것이 편리하다. GUI를 통해 데이터를 보는 것보다 단순히 데이터를 수집하는 것이 서버 성능 문제 해결을 준비하거나 기준을 설정하는 데 선호되는 자동화 방법이다.
 
     - 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
     이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
@@ -137,15 +138,15 @@ Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/
     만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
     <img src = "image/07/CounterLog06.PNG" width="45%"> 
 
-    - 로그 파일명 DataCollector01을 바꿀수 있다.  
+    - 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
     <img src = "image/07/CounterLog07.PNG" width="45%">     
 
 
-추가적인 성능 모니터 사용 지침을 사용해 좀더 자세한 내용을 살펴 볼수 있다.
-[Windows Server 2022의 성능 튜닝 지침](https://docs.microsoft.com/ko-kr/windows-server/administration/performance-tuning/)
+    추가적인 성능 모니터 사용 지침을 사용해 좀더 자세한 내용을 살펴 볼수 있다.
+    [Windows Server 2022의 성능 튜닝 지침](https://docs.microsoft.com/ko-kr/windows-server/administration/performance-tuning/)
 
 - ### c. 성능 모니터 오버헤드 최소화
-    성능 모니터는 오버헤드를 최소화하도록 만들어졌지만 그래도 시스템 영향을 적게 받게 하지 위해서는 다음 사항을 고려해야 한다.
+    성능 모니터는 오버헤드를 최소화하도록 만들어졌지만 그래도 시스템 영향을 적게 받게 하기 위해서는 다음 사항을 고려해야 한다.
 
         - 카운터 수를 제한. 정말로 1차적으로 필요한 것만 지정
         - 성능 모니터 그래프 기능보다는 카운터 로그 사용하여 데이터 수집
@@ -155,7 +156,7 @@ Baseline 데이터란 해당 서버의 평소 상태의 성능 수치를 수집/
 
     - 카운터 수 제한  
     짧은 간격으로 많은 수의 카운터들을 수집하는 것은 시스템에 약간의 오버헤드가 추가될 수 있다. 이 오버헤드의 대부분은 추가한 성능 카운터 갯수에 의해 발생하므로 당신이 선택한 카운터들에 대해 자세히 알 필요가 있다. 
-    선택한 성능 개체에 대한 카운터 수는 개체 자체의 특성 만 제공하므로 오버 헤드를 많이 추가하지 않습니다. 따라서 모니터링하려는 개체와 그 이유를 아는 것이 중요합니다.
+    선택한 성능 개체에 대한 카운터 수는 개체 자체의 특성 만 제공하므로 오버 헤드를 많이 추가하지 않는다. 따라서 모니터링하려는 개체와 그 이유를 아는 것이 중요합니다.
 
     - 카운터 로그 형태로 성능 데이터를 수집하고 원본 서버에 저장  
     성능 모니터의 그래프를 사용하여 실시간 성능 데이터를 그래프 형태로 보면 해당 시스템에 상당한 오버 헤드가 발생한다. 그렇기에 원본 서버에서는 카운터 로그형태로 수집 된 성능파일을 만들며 이때 모니터링되는 디스크가 아닌 별도의 로컬 디스크에 저장하는것이 좋다. 그 후 이를 원격 컴퓨터에서 열어서 그 후 그래프로 보는 방식으로 사용해야 한다.
