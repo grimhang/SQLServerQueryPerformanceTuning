@@ -199,22 +199,22 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         <img src = "image/07/CounterLogFromHtm03_01_.PNG" width="70%">  
         
     - <b>b.3 템플릿(.xml)을 사용하여 카운터 로그 만들기</b> 
-        * 위 b.1에서 만들어 놓은 SQLServerBaseline 카운터로그를 오른 클릭-> 템플릿 저장 선택  
-        <img src = "image/07/CounterLogFromXml00_.PNG" width="70%">  
+        * 위 b.1에서 만들어 놓은 CounterLog 카운터로그를 오른 클릭-> 템플릿 저장 선택  
+        <img src = "image/07/CounterLogFromXml00_saveTpl.png" width="70%">  
         xml파일로 설정을 저장할수 있다.
         
         * 설정을 저장했으면 테스트를 위해 SQLServerBaseline 카운터로그 자체를 삭제  
-        <img src = "image/07/CounterLogFromXml00_01_.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromXml00_01_delete.png" width="70%">  
 
         * 신규 카운터 로그를 만들기  
         성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
         "템플릿으로부터 만들기(권장)" 선택하고 다음 클릭
-        <img src = "image/07/CounterLogFromXml01_.PNG" width="70%"> 
+        <img src = "image/07/CounterLogFromXml01_new.png" width="70%"> 
 
         * 어떤 템플릿을 선택할 수 있는 화면이 나오는 "찾아보기" 눌러 저장해 놓은 xml 파일 선택
         <img src = "image/07/CounterLogFromHtm02_.PNG" width="70%">          
         아래와 같이 xml의 설정파일을 불러왔다. 마침 클릭  
-        <img src = "image/07/CounterLogFromXml02_.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromXml02_browseTpl.png" width="70%">  
 
         * 성능 모니터에서 만들어진 카운터로그를 살펴보자
         htm설정파일로는 카운터항목들만 가져왔는데 xml설정파일은 일정, 중지조건 등 모든 설정을 다 가져올 수 있다.  
