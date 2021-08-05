@@ -166,7 +166,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
           이름 지정 후 "템플릿으로부터 만들기(권장)" 선택하고 다음.  
-          <img src = "image/07/CounterLogFromHtm01.PNG" width="60%">
+          <img src = "image/07/CounterLogFromHtm01_.PNG" width="60%">
 
         * 템플릿 지정할수 있는 화면에서 "찾아보기"를 눌러 위에서 저장해 놓은 htm 파일을 지정.           
         <img src = "image/07/CounterLogFromHtm02.PNG" width="60%">
@@ -206,7 +206,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         <img src = "image/07/CounterLogFromXml03_01.PNG" width="70%">
         <img src = "image/07/CounterLogFromXml03_02.PNG" width="70%">
         <img src = "image/07/CounterLogFromXml03_03.PNG" width="70%">
-        
+
     ```note
     이진 파일인 .blg은 파일을 더블클릭만 해도 독립 실행형 성능 모니터 화면이 열려 바로 그래픽 UI로 분석할 수 있다.  
     하지만 크기가 csv보다 몇배나 크기 때문에 실서버에서 측정하고 테스트서버로 옮기는 등의 일반적인 경우때문에 권장하지 않는다.  
