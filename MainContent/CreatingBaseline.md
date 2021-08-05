@@ -135,7 +135,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
             그리고 저장된 설정 파일을 더블클릭해서 열면 마지막 실행되었던 성능 모니터가 그대로 열린다.  
             꼼수로 .blg 파일 클릭했을때도 독립실행모드로 열리니 더미 .blg 하나 만들어 놓으면 명령어 칠필요 없음.
             ```
-            <img src = "image/07/PerfMon01_07_.png" width="80%">  
+            <img src = "image/07/PerfMon01_07.png" width="80%">  
         
         - **PAL 사용**  
         또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하면 이러한 데이터 중 일부를 보다 쉽게 분석 할 있다. 성능모니터의 카운터 로그 데이터를 이용해 분석을 쉽게 해주는 툴이다. 
