@@ -171,7 +171,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         * 템플릿 지정할수 있는 화면에서 "찾아보기"를 눌러 위에서 저장해 놓은 htm 파일을 지정.           
         <img src = "image/07/CounterLogFromHtm02_.PNG" width="60%">
         ```tip
-        .xml만 지정할 수 있는데 "모든파일"로 바꿔서 htm 파일을 찾기
+        기본적으로 xml만 선택할 수 있지만 "모든파일"로 바꿔서 htm 파일을 찾기
         ```
         <img src = "image/07/CounterLogFromHtm02_01_.PNG" width="60%">  
         위와 같은 화면으로 바뀜. "마침"을 눌러 설정완료
