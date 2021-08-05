@@ -133,42 +133,81 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
           이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-          <img src = "image/07/CounterLog01.PNG" width="45%">
+          <img src = "image/07/CounterLog01.PNG" width="60%">
 
         * 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다.  
-        <img src = "image/07/CounterLog02.PNG" width="45%">
+        <img src = "image/07/CounterLog02.PNG" width="60%">
 
         * 원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다.  
-        <img src = "image/07/CounterLog03.PNG" width="45%">    
+        <img src = "image/07/CounterLog03.PNG" width="60%">    
 
         * 데이터를 저장할 폴더를 지정하고 다음을 누른다.  
-        <img src = "image/07/CounterLog04.PNG" width="45%">    
+        <img src = "image/07/CounterLog04.PNG" width="60%">    
 
         * 실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다.  
-        <img src = "image/07/CounterLog05.PNG" width="45%">        
+        <img src = "image/07/CounterLog05.PNG" width="60%">        
 
         * 만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
         다음과 같이 시작일정을 추가할수 있다.  
-        <img src = "image/07/CounterLogSchedule01.PNG" width="45%">
+        <img src = "image/07/CounterLogSchedule01.PNG" width="60%">
 
         * 중지조건도 지정해 얼마만큼만 실행될지 정할수 있다.  
-        <img src = "image/07/CounterLogSchedule02.PNG" width="45%">     
+        <img src = "image/07/CounterLogSchedule02.PNG" width="60%">     
 
         * 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
         만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
-        <img src = "image/07/CounterLog06.PNG" width="45%"> 
+        <img src = "image/07/CounterLog06.PNG" width="60%"> 
 
         * 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
-        <img src = "image/07/CounterLog07.PNG" width="45%">     
+        <img src = "image/07/CounterLog07.PNG" width="60%">     
 
     - <b>b.2 템플릿(.htm)을 사용하여 카운터 로그 만들기</b>  
         이전에 저장해 놓은 .htm 파일을 이용해 좀더 쉽게 카운터 로그 만들기
 
         * 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
-          이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-          <img src = "image/07/CounterLog01.PNG" width="45%">
+          이름 지정 후 "템플릿으로부터 만들기(권장)" 선택하고 다음.  
+          <img src = "image/07/CounterLogFromHtm01.PNG" width="60%">
 
-    ```tip
+        * 템플릿 지정할수 있는 화면에서 "찾아보기"를 눌러 위에서 저장해 놓은 htm 파일을 지정.           
+        <img src = "image/07/CounterLogFromHtm02.PNG" width="60%">
+        ```tip
+        .xml만 지정할 수 있는데 "모든파일"로 바꿔서 htm 파일을 찾기
+        ```
+        <img src = "image/07/CounterLogFromHtm02_01.PNG" width="60%">  
+        위와 같은 화면으로 바뀜. "마침"을 눌러 설정완료
+
+        * 성능모니터의 다음과 같은 카운터 로그가 만들어진다.  
+        <img src = "image/07/CounterLogFromHtm03.PNG" width="70%">  
+        오른쪽영역의 DataCollector01을 오른쪽 마우스 속성을 보면 카운터항목들만 추가되어 있고 다른 설정들은 아무것도 안되어 있다.  
+        이것이 .htm 설정 파일을 이용의 단점이다. xml설정파일을 모든 설정들이 저장되어 있기 때문에 훨씬 편리.  
+        <img src = "image/07/CounterLogFromHtm03_01.PNG" width="70%">  
+        
+    - <b>b.3 템플릿(.xml)을 사용하여 카운터 로그 만들기</b> 
+        * 위 b.1에서 만들어 놓은 SQLServerBaseline 카운터로그를 오른 클릭-> 템플릿 저장 선택  
+        <img src = "image/07/CounterLogFromXml00.PNG" width="70%">  
+        xml파일로 설정을 저장할수 있다.
+        
+        * 설정을 저장했으면 테스트를 위해 SQLServerBaseline 카운터로그 자체를 삭제  
+        <img src = "image/07/CounterLogFromXml00_01.PNG" width="70%">  
+
+        * 신규 카운터 로그를 만들기  
+        성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
+        "템플릿으로부터 만들기(권장)" 선택하고 다음 클릭
+        <img src = "image/07/CounterLogFromXml01.PNG" width="70%"> 
+
+        * 어떤 템플릿을 선택할 수 있는 화면이 나오는 "찾아보기" 눌러 저장해 놓은 xml 파일 선택
+        <img src = "image/07/CounterLogFromHtm02.PNG" width="70%">          
+        아래와 같이 xml의 설정파일을 불러왔다. 마침 클릭  
+        <img src = "image/07/CounterLogFromXml02.PNG" width="70%">  
+
+        * 성능 모니터에서 만들어진 카운터로그를 살펴보자
+        htm설정파일로는 카운터항목들만 가져왔는데 xml설정파일은 일정, 중지조건 등 모든 설정을 다 가져올 수 있다.  
+        <img src = "image/07/CounterLogFromXml03.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_01.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_02.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_03.PNG" width="70%">
+        
+    ```note
     이진 파일인 .blg은 파일을 더블클릭만 해도 독립 실행형 성능 모니터 화면이 열려 바로 그래픽 UI로 분석할 수 있다.  
     하지만 크기가 csv보다 몇배나 크기 때문에 실서버에서 측정하고 테스트서버로 옮기는 등의 일반적인 경우때문에 권장하지 않는다.  
     대부분 csv로 저장하는 편.
