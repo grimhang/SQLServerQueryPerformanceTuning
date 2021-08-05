@@ -218,10 +218,10 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 성능 모니터에서 만들어진 카운터로그를 살펴보자
         htm설정파일로는 카운터항목들만 가져왔는데 xml설정파일은 일정, 중지조건 등 모든 설정을 다 가져올 수 있다.  
-        <img src = "image/07/CounterLogFromXml03_.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_01_.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_02_.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_03_.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_01_sche.png" width="70%">
+        <img src = "image/07/CounterLogFromXml03_02_stopCondi.png" width="70%">
+        <img src = "image/07/CounterLogFromXml03_03_comma.png" width="70%">
+        <img src = "image/07/CounterLogFromXml03_04_newName.png" width="70%">
 
     ```note
     이진 파일인 .blg은 파일을 더블클릭만 해도 독립 실행형 성능 모니터 화면이 열려 바로 그래픽 UI로 분석할 수 있다.  
