@@ -169,17 +169,19 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 만들어진 데이터 수집기 집합인 CounterLog 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
         다음과 같이 시작일정을 추가할수 있다.  
-        <img src = "image/07/CounterLogSchedule01.PNG" width="60%">
+        <img src = "image/07/CounterLogSche01_openProp.png" width="80%">
+        <img src = "image/07/CounterLogSche02_addSche.png" width="60%">
 
         * 중지조건도 지정해 얼마만큼만 실행될지 정할수 있다.  
-        <img src = "image/07/CounterLogSchedule02.PNG" width="60%">     
+        <img src = "image/07/CounterLogSche03_addStop.png" width="60%">     
 
         * 결과가 .blg 이진파일형태로 저장되는데 csv로 바꿀수 있다.
         ```
         -> 만들어진 데이터 수집기 집합인 CounterLog을 선택
         -> 오른쪽 DataCollector01을 오른쪽 클릭 > 속성
         -> 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장  
-        ```
+        ```        
+        <img src = "image/07/CounterLog06_00_selectRight.png" width="70%"> 
         <img src = "image/07/CounterLog06_.png" width="60%"> 
 
         * 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
