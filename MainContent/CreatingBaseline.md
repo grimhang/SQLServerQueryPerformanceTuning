@@ -47,7 +47,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 - ### a. 그래픽UI로 성능 카운터 수집
 
     - 성능모니터 도구를 열면 그래픽 형태로 열린다.  
-    <img src = "image/07/PerfMon01.PNG" width="70%">  
+    <img src = "image/07/PerfMon01_addCounter.png" width="70%">  
 
     - 성능카운터 추가
         ```
