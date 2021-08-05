@@ -163,7 +163,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         * 실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다.  
         <img src = "image/07/CounterLog05_.png" width="60%">        
 
-        * 만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
+        * 만들어진 데이터 수집기 집합인 CounterLog 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
         다음과 같이 시작일정을 추가할수 있다.  
         <img src = "image/07/CounterLogSchedule01.PNG" width="60%">
 
