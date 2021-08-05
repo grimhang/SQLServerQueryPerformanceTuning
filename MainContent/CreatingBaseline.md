@@ -112,7 +112,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
             ```tip
             htm 파일이기 때문에 Internet Explorer 브라우저에서 열면 ActiveX를 통해 성능 모니터 화면을 캡처한 것처럼 다시 볼수 있다.
             다른 브라우저 안됨.          
-            ![이미지 이름](image/07/PerfMon01_05_.png){: width="80%"}  
+            ![이미지 이름](image/07/PerfMon01_05.png){: width="80%"}  
             Internet Explorer에서 열린 것에 주의하자.
             ```
             - htm 세팅 불러오기
@@ -120,7 +120,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
             1. htm파일을 텍스트에디터로 열고 전체내용 복사.
             2. 성능모니터의 오른쪽 화면에서 "카운터 목록 붙여넣기" 버튼 클릭
             ```
-            <img src = "image/07/PerfMon01_06_.png" width="80%">  
+            <img src = "image/07/PerfMon01_06.png" width="80%">  
             모든 카운터가 다시 보인다
       
         - **두번째 : .PerfmonCfg 확장자 세팅정보**  
