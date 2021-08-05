@@ -171,7 +171,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         <img src = "image/07/CounterLogSchedule02.PNG" width="60%">     
 
         * 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
-        만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
+        만들어진 데이터 수집기 집합인 CounterLog을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
         <img src = "image/07/CounterLog06_.png" width="60%"> 
 
         * 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
@@ -203,7 +203,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         <img src = "image/07/CounterLogFromXml00_saveTpl.png" width="70%">  
         xml파일로 설정을 저장할수 있다.
         
-        * 설정을 저장했으면 테스트를 위해 SQLServerBaseline 카운터로그 자체를 삭제  
+        * 설정을 저장했으면 테스트를 위해 CounterLog 카운터로그 자체를 삭제  
         <img src = "image/07/CounterLogFromXml00_01_delete.png" width="70%">  
 
         * 신규 카운터 로그를 만들기  
