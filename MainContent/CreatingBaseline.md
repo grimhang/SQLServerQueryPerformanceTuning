@@ -149,19 +149,19 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
           이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-          <img src = "image/07/CounterLog01.png" width="60%">
+          <img src = "image/07/CounterLog01_.png" width="60%">
 
         * 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다.  
-        <img src = "image/07/CounterLog02.png" width="60%">
+        <img src = "image/07/CounterLog02_.png" width="60%">
 
         * 원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다.  
-        <img src = "image/07/CounterLog03.png" width="60%">    
+        <img src = "image/07/CounterLog03_.png" width="60%">    
 
         * 데이터를 저장할 폴더를 지정하고 다음을 누른다.  
-        <img src = "image/07/CounterLog04.png" width="60%">    
+        <img src = "image/07/CounterLog04_.png" width="60%">    
 
         * 실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다.  
-        <img src = "image/07/CounterLog05.png" width="60%">        
+        <img src = "image/07/CounterLog05_.png" width="60%">        
 
         * 만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
         다음과 같이 시작일정을 추가할수 있다.  
@@ -172,10 +172,10 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
         만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
-        <img src = "image/07/CounterLog06.png" width="60%"> 
+        <img src = "image/07/CounterLog06_.png" width="60%"> 
 
         * 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
-        <img src = "image/07/CounterLog07.png" width="60%">     
+        <img src = "image/07/CounterLog07_.png" width="60%">     
 
     - <b>b.2 템플릿(.htm)을 사용하여 카운터 로그 만들기</b>  
         이전에 저장해 놓은 .htm 파일을 이용해 좀더 쉽게 카운터 로그 만들기
