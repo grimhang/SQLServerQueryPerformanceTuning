@@ -169,43 +169,43 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
           <img src = "image/07/CounterLogFromHtm01_.PNG" width="60%">
 
         * 템플릿 지정할수 있는 화면에서 "찾아보기"를 눌러 위에서 저장해 놓은 htm 파일을 지정.           
-        <img src = "image/07/CounterLogFromHtm02.PNG" width="60%">
+        <img src = "image/07/CounterLogFromHtm02_.PNG" width="60%">
         ```tip
         .xml만 지정할 수 있는데 "모든파일"로 바꿔서 htm 파일을 찾기
         ```
-        <img src = "image/07/CounterLogFromHtm02_01.PNG" width="60%">  
+        <img src = "image/07/CounterLogFromHtm02_01_.PNG" width="60%">  
         위와 같은 화면으로 바뀜. "마침"을 눌러 설정완료
 
         * 성능모니터의 다음과 같은 카운터 로그가 만들어진다.  
-        <img src = "image/07/CounterLogFromHtm03.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromHtm03_.PNG" width="70%">  
         오른쪽영역의 DataCollector01을 오른쪽 마우스 속성을 보면 카운터항목들만 추가되어 있고 다른 설정들은 아무것도 안되어 있다.  
         이것이 .htm 설정 파일을 이용의 단점이다. xml설정파일을 모든 설정들이 저장되어 있기 때문에 훨씬 편리.  
-        <img src = "image/07/CounterLogFromHtm03_01.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromHtm03_01_.PNG" width="70%">  
         
     - <b>b.3 템플릿(.xml)을 사용하여 카운터 로그 만들기</b> 
         * 위 b.1에서 만들어 놓은 SQLServerBaseline 카운터로그를 오른 클릭-> 템플릿 저장 선택  
-        <img src = "image/07/CounterLogFromXml00.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromXml00_.PNG" width="70%">  
         xml파일로 설정을 저장할수 있다.
         
         * 설정을 저장했으면 테스트를 위해 SQLServerBaseline 카운터로그 자체를 삭제  
-        <img src = "image/07/CounterLogFromXml00_01.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromXml00_01_.PNG" width="70%">  
 
         * 신규 카운터 로그를 만들기  
         성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
         "템플릿으로부터 만들기(권장)" 선택하고 다음 클릭
-        <img src = "image/07/CounterLogFromXml01.PNG" width="70%"> 
+        <img src = "image/07/CounterLogFromXml01_.PNG" width="70%"> 
 
         * 어떤 템플릿을 선택할 수 있는 화면이 나오는 "찾아보기" 눌러 저장해 놓은 xml 파일 선택
-        <img src = "image/07/CounterLogFromHtm02.PNG" width="70%">          
+        <img src = "image/07/CounterLogFromHtm02_.PNG" width="70%">          
         아래와 같이 xml의 설정파일을 불러왔다. 마침 클릭  
-        <img src = "image/07/CounterLogFromXml02.PNG" width="70%">  
+        <img src = "image/07/CounterLogFromXml02_.PNG" width="70%">  
 
         * 성능 모니터에서 만들어진 카운터로그를 살펴보자
         htm설정파일로는 카운터항목들만 가져왔는데 xml설정파일은 일정, 중지조건 등 모든 설정을 다 가져올 수 있다.  
-        <img src = "image/07/CounterLogFromXml03.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_01.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_02.PNG" width="70%">
-        <img src = "image/07/CounterLogFromXml03_03.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_01_.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_02_.PNG" width="70%">
+        <img src = "image/07/CounterLogFromXml03_03_.PNG" width="70%">
 
     ```note
     이진 파일인 .blg은 파일을 더블클릭만 해도 독립 실행형 성능 모니터 화면이 열려 바로 그래픽 UI로 분석할 수 있다.  
