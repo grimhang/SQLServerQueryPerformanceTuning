@@ -51,19 +51,16 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
     - 툴바에서 + 버튼을 누르거나 단축키 ctrl + N을 눌러 카운터를 추가할 수 있는 창 오픈.
      "다음 컴퓨터에서 카운터 선택" 부분은 기본적으로 "로컬 컴퓨터"로 선택되어 있다.  
-    <img src = "image/07/CounterLog00.PNG" width="70%">
+    <img src = "image/07/PerfMon01_01.png" width="70%">
 
     - 샘플로 SQLServer:Latches:Total Latch Wait Time(ms) 수집해보자
 
-        - 카운터에서 SQLServer:Latches 카운터를 선택한다.
-
-        - 아래 화살표를 누르면 하위 카운터들이 나열되는데 "Total Latch Wait Time(ms)"를 선택.
-
-        - "선택한 개체의 인스턴스"에서 _Total이 기본적으로 선택되어 있고 "추가" 버튼을 누르면 오른쪽 영역(추가된 카운터)에 추가된다.
-
-        - "확인" 버튼을 눌러 최종 완료.    
-
-        <img src = "image/07/CounterLog00_02.PNG" width="70%">
+        ```
+        -> 카운터에서 SQLServer:Latches 카운터를 선택
+        -> 아래 화살표를 누르면 하위 카운터들이 나열되는데 "Total Latch Wait Time(ms)"를 선택.        
+        -> "확인" 버튼을 눌러 최종 완료.    
+        ```
+        <img src = "image/07/PerfMon01_02.png" width="70%">
     
     - 베이스라인을 만들기 위해 카운터 로그를 수집할때는 보통 아래 카운터를 수집하는게 일반적.
 
@@ -98,31 +95,50 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         ```
 
     - 모든 성능 카운터를 추가했으면 확인을 클릭하여 카운터 추가 대화 상자를 닫습니다.  
-    <img src = "image/07/CounterLog00_03.PNG" width="80%">  
+    <img src = "image/07/PerfMon01_03.png" width="80%">  
     그래픽 차트형태로 실시간 데이터가 보여지고 있다.
 
-    - 카운터 항목 저장  
+    - **카운터 항목 저장**  
       그래픽 UI화면에서 매번 성능 카운터를 추가하는 것은 매우 피곤한 작업이다. 우리는 최초에만 추가하고 나중에는 그 리스트를 어디엔가 저장하고 불러와서 바로 사용하길 원한다.
       
-        * .htm 파일로 세팅 저장하기  
-        성능 모니터의 오른쪽 프레임을 마우스 오른쪽 단추로 클릭하고 "다른 이름으로 설정 저장" 메뉴 항목을 선택. 그러면 .htm로 리스트를 저장하게 된다.
-        htm 파일이기 때문에 Internet Explorer 브라우저에서 열면 ActiveX를 통해 성능 모니터 화면을 캡처한 것처럼 다시 볼수 있다. 다른 브라우저 안됨.  
-        <img src = "image/07/CounterLog00_04_.PNG" width="80%">  
-        Internet Explorer에서 열린 것에 주의하자.
-
-            단 이 .htm 파일은 뒤에서 설명하는 "카운터 로그" 만들기 할때만 쓸수 있기에 단점이 있다.  
-            그러면 그래픽 UI에서는 매번 카운터를 추가해야 하냐면 아니다. 방법이 있다.
+        - **첫번째 : .htm 확장자 세팅정보**
+            - htm파일로 세팅 저장
+            ```
+            성능 모니터의 오른쪽 프레임을 마우스 오른쪽 단추로 클릭하고 "설정을 다른 이름으로 저장" 메뉴 항목을 선택.
+            그러면 .htm로 리스트를 저장하게 된다.
+            저장된 htm파일은 뒤에서 설명하는 카운터로그 만들기에도 사용가능 
+            ```
+            <img src = "image/07/PerfMon01_04.png" width="80%">  
+            ```tip
+            htm 파일이기 때문에 Internet Explorer 브라우저에서 열면 ActiveX를 통해 성능 모니터 화면을 캡처한 것처럼 다시 볼수 있다.
+            다른 브라우저 안됨.          
+            ![이미지 이름](image/07/PerfMon01_05.png){: width="80%"}  
+            Internet Explorer에서 열린 것에 주의하자.
+            ```
+            - htm 세팅 불러오기
+            ```
+            1. htm파일을 텍스트에디터로 열고 전체내용 복사.
+            2. 성능모니터의 오른쪽 화면에서 "카운터 목록 붙여넣기" 버튼 클릭
+            ```
+            <img src = "image/07/PerfMon01_06.png" width="80%">  
+            모든 카운터가 다시 보인다
       
-        *  .PerfmonCfg 파일로 세팅 저장하기  
+        - **두번째 : .PerfmonCfg 확장자 세팅정보**  
+        독립실행형 모드로 성능모니터를 실행서 .PerfmonCfg 파일로 세팅 저장하면 된다.  
         Erin Stellato가 "성능 모니터에 대한 기본 카운터 사용자 지정"(http://bit.ly/1brQKeZ) 기사에서 설명하는 방법. 
 
             독립 실행모드로 성능 모니터 실행.  
-            perfmon /sys 로 치면 성능 모니터가 단촐하게 열린다. 카운터를 추가한 후 이 화면을 닫고 다시 실행해도 추가된 카운터들이 그대로 보인다. 즉 어딘가에 설정이 자동 저장되는 것이다.
-            .PerfmonCfg 파일로..  우리는 파일 / 다른 이름으로 세팅 저장 메뉴를 통해 여러개의 설정 파일을 저장해 놓을 수 있다. 그리고 저장된 설정 파일을 더블클릭해서 열면 마지막 실행되었던 성능 모니터가 그대로 열린다.  
-            <img src = "image/07/CounterLog00_05_.PNG" width="80%">  
+            ```
+            perfmon /sys 로 치면 성능 모니터가 단촐하게 열린다. 
+            카운터를 추가한 후 이 화면을 닫고 다시 실행해도 추가된 카운터들이 그대로 보인다. 즉 어딘가에 설정이 자동 저장되는 것이다.
+            .PerfmonCfg 파일로..  우리는 파일 / 다른 이름으로 세팅 저장 메뉴를 통해 여러개의 설정 파일을 저장해 놓을 수 있다.
+            그리고 저장된 설정 파일을 더블클릭해서 열면 마지막 실행되었던 성능 모니터가 그대로 열린다.  
+            꼼수로 .blg 파일 클릭했을때도 독립실행모드로 열리니 더미 .blg 하나 만들어 놓으면 명령어 칠필요 없음.
+            ```
+            <img src = "image/07/PerfMon01_07.png" width="80%">  
         
-        * PAL 사용  
-        또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하여 이러한 데이터 중 일부를보다 쉽게 처리 할 수 있다. 성능모니터의 카운터 로그 데이터를 이용해 분석을 쉽게 해주는 툴이다. 
+        - **PAL 사용**  
+        또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하면 이러한 데이터 중 일부를 보다 쉽게 분석 할 있다. 성능모니터의 카운터 로그 데이터를 이용해 분석을 쉽게 해주는 툴이다. 
 
 
 - ### b. 성능카운터 리스트를 사용한 카운터 로그 만들기
@@ -133,19 +149,19 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 성능모니터 > 데이터 수집기 집합 > 사용자 정의 > 오른쪽 마우스 클릭 > 새로 만들기 > 데이터 수집기 집합  
           이름을 지정하고 "수동으로 만들기(고급)" 을 선택하고 다음을 누른다.  
-          <img src = "image/07/CounterLog01.PNG" width="60%">
+          <img src = "image/07/CounterLog01.png" width="60%">
 
         * 어떤 형식의 데이터를 선택하는 화면이 뜨는데 "성능 카운터" 선택하고 다음을 누른다.  
-        <img src = "image/07/CounterLog02.PNG" width="60%">
+        <img src = "image/07/CounterLog02.png" width="60%">
 
         * 원하는 성능 카운터들을 추가하고 데이터를 수집할 샘플 간격을 초단위로 입력하고 다음을 누른다.  
-        <img src = "image/07/CounterLog03.PNG" width="60%">    
+        <img src = "image/07/CounterLog03.png" width="60%">    
 
         * 데이터를 저장할 폴더를 지정하고 다음을 누른다.  
-        <img src = "image/07/CounterLog04.PNG" width="60%">    
+        <img src = "image/07/CounterLog04.png" width="60%">    
 
         * 실행할 계정을 선택하거나(보통은 기본값) 기타 동작을 선택하고 마침을 누른다.  
-        <img src = "image/07/CounterLog05.PNG" width="60%">        
+        <img src = "image/07/CounterLog05.png" width="60%">        
 
         * 만들어진 데이터 수집기 집합인 SQLServerBaseline 을 오른쪽 클릭하고 속성 > 일정을 선택한다.  
         다음과 같이 시작일정을 추가할수 있다.  
@@ -156,10 +172,10 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
 
         * 결과가 이진파일이면서 파일명이 DataCollector01.blg 로 나오는데 다음과 같이 조정할 수 있다.  
         만들어진 데이터 수집기 집합인 SQLServerBaseline을 선택하고 오른쪽 DataCollector01을 오른쪽 클릭 > 속성에서 로그형식을 "쉼표로 구분" 선택하면 csv의 텍스트 포맷으로 저장된다.  
-        <img src = "image/07/CounterLog06.PNG" width="60%"> 
+        <img src = "image/07/CounterLog06.png" width="60%"> 
 
         * 저장되는 파일명을 DataCollector01에서 다른 것으로 바꿀수 있다.  
-        <img src = "image/07/CounterLog07.PNG" width="60%">     
+        <img src = "image/07/CounterLog07.png" width="60%">     
 
     - <b>b.2 템플릿(.htm)을 사용하여 카운터 로그 만들기</b>  
         이전에 저장해 놓은 .htm 파일을 이용해 좀더 쉽게 카운터 로그 만들기
