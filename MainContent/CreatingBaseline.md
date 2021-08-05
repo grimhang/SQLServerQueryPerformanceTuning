@@ -107,7 +107,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
         * .htm 파일로 세팅 저장하기  
         성능 모니터의 오른쪽 프레임을 마우스 오른쪽 단추로 클릭하고 "다른 이름으로 설정 저장" 메뉴 항목을 선택. 그러면 .htm로 리스트를 저장하게 된다.
         htm 파일이기 때문에 Internet Explorer 브라우저에서 열면 ActiveX를 통해 성능 모니터 화면을 캡처한 것처럼 다시 볼수 있다. 다른 브라우저 안됨.  
-        <img src = "image/07/CounterLog00_04.PNG" width="80%">  
+        <img src = "image/07/CounterLog00_04_.PNG" width="80%">  
         Internet Explorer에서 열린 것에 주의하자.
 
             단 이 .htm 파일은 뒤에서 설명하는 "카운터 로그" 만들기 할때만 쓸수 있기에 단점이 있다.  
@@ -119,7 +119,7 @@ Baseline 데이터란 해당 서버의 평소 성능 수치를 수집/측정 해
             독립 실행모드로 성능 모니터 실행.  
             perfmon /sys 로 치면 성능 모니터가 단촐하게 열린다. 카운터를 추가한 후 이 화면을 닫고 다시 실행해도 추가된 카운터들이 그대로 보인다. 즉 어딘가에 설정이 자동 저장되는 것이다.
             .PerfmonCfg 파일로..  우리는 파일 / 다른 이름으로 세팅 저장 메뉴를 통해 여러개의 설정 파일을 저장해 놓을 수 있다. 그리고 저장된 설정 파일을 더블클릭해서 열면 마지막 실행되었던 성능 모니터가 그대로 열린다.  
-            <img src = "image/07/CounterLog00_05.PNG" width="80%">  
+            <img src = "image/07/CounterLog00_05_.PNG" width="80%">  
         
         * PAL 사용  
         또한 Microsoft에서 제공하는 도구 인 PAL (Performance Analysis of Logs) (https://bit.ly/2KeJJmy)을 사용하여 이러한 데이터 중 일부를보다 쉽게 처리 할 수 있다. 성능모니터의 카운터 로그 데이터를 이용해 분석을 쉽게 해주는 툴이다. 
