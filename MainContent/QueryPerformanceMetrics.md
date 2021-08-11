@@ -12,4 +12,4 @@ sort: 8
     * 확장 이벤트를 이용하여 SQL Server 워크로드를 분석하고 비용이 많이 소모되는 SQL 식별하는 방법
     * 동적관리오브젝트(DMO)로 쿼리 성능 추적하는 방법
 
-## <font color='dodgerblue' size="6">1) 확장이벤트</font>
+## <font color='dodgerblue' size="6">1) 확장 이벤트(XE)</font>
