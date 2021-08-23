@@ -536,36 +536,45 @@ Total Server Memory (KB)가 Target Server Memory (KB)보다 심하게 낮다면
 
 ```sql
 -- 데이터별로 버퍼캐시 사용량
-select DB_NAME(database_id) DBNamed, numa_node
-    , sum(row_count * 1.0)           RowCnt
-    , sum(free_space_in_bytes * 1.0) FreeSpaceBytes
-    , COUNT_BIG(*)                   Capa_KB
-from sys.dm_os_buffer_descriptors
-GROUP BY database_id,  numa_node
-ORDER BY database_id, numa_node
+SELECT *
+    , DirtyPageCount * 8 / 1024 AS DirtyPage_MB
+    , CleanPageCount * 8 / 1024 AS CleanPage_MB
+    , (DirtyPageCount * 8 / 1024) + (CleanPageCount * 8 / 1024) AS Total_MB
+FROM
+(
+    SELECT
+	    CASE
+            WHEN database_id = 32767 THEN N'Resource Database'
+            ELSE DB_NAME(database_id)
+        END AS DBName
+        , numa_node
+	    , SUM(CASE WHEN (is_modified = 1) THEN 1 ELSE 0 END) AS DirtyPageCount
+	    , SUM(CASE WHEN (is_modified = 1) THEN 0 ELSE 1 END) AS CleanPageCount
+    FROM sys.dm_os_buffer_descriptors
+    GROUP BY database_id, numa_node
+) T
+ORDER BY numa_node, DBName
 
-    DBNamed           numa_node  RowCnt       FreeSpaceBytes  Capa_KB
-    ----------------  ---------  -----------  --------------  --------------------
-    master            0          3328.0       329638.0        77
-    master            1          3913.0       215858.0        80
-    tempdb            0          8586776.0    332743249.0     332239
-    tempdb            1          12386946.0   567433321.0     455244
-    model             0          998.0        74101.0         18
-    model             1          190.0        16391.0         7
-    msdb              0          207616.0     103651897.0     36885
-    msdb              1          8101.0       821311.0        545
-    APPLE             0          1755.0       127911.0        29
-    APPLE             1          13.0         15224.0         4
-    TOMATO            0          184670790.0  11446474871.0   5131561
-    TOMATO            1          173250051.0  9196274937.0    3800239
-    GREEN_FRUIT       0          4244.0       271194.0        83
-    GREEN_FRUIT       1          7455.0       691817.0        215
-    PEPPER            0          14488.0      9907506.0       7483
-    PEPPER            1          83366.0      91196397.0      65386
-    ROSE              0          33033.0      41369277.0      10899
-    ROSE              1          5774.0       7849631.0       2107
-    NULL              0          5532.0       365566.0        119
-    NULL              1          9301.0       603662.0        198
+    DBNamed           numa_node  DirtyPageCount  CleanPageCount  DirtyPage_MB  CleanPage_MB  Total_MB
+    ----------------  ---------  --------------  --------------  ------------  ------------  ---------
+    APPLE             0          0               1353            0             10            10  
+    GREEN_FRUIT       0          0               1654            0             12            12
+    master            0          0               258             0             2             2
+    model             0          0               41              0             0             0
+    msdb              0          0               319             0             2             2
+    PEPPER            0          0               38810           0             303           303
+    ROSE              0          0               2370            0             18            18
+    tempdb            0          0               448865          21            3506          3527
+    TOMATO            0          0               1233            0             9             9
+    APPLE             1          0               381             0             9             9
+    GREEN_FRUIT       1          0               2370            0             18            18
+    master            1          0               12              255           0             255
+    model             1          0               24              0             0             0
+    msdb              1          0               6               0             0             0
+    PEPPER            1          0               102             13            0             0
+    ROSE              1          0               29472           0             230           230
+    tempdb            1          5737            21118           44            164           208
+    TOMATO            1          14              23              0             0             0
 
     보면 NUMA 노드 0번과 1번의 버퍼캐시량이 틀리기 때문에 실제 디테일하게 NUMA 노드별로 확인하는게  
     정답이지만 대부분 비슷하기 때문에 평균 값으로 보는 경우가 대부분.
