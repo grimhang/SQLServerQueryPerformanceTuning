@@ -554,6 +554,7 @@ FROM
     GROUP BY database_id, numa_node
 ) T
 ORDER BY numa_node, DBName
+GO
 
     DBNamed           numa_node  DirtyPageCount  CleanPageCount  DirtyPage_MB  CleanPage_MB  Total_MB
     ----------------  ---------  --------------  --------------  ------------  ------------  ---------
