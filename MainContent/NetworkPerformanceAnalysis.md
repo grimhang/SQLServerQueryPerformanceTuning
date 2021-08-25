@@ -2,7 +2,7 @@
 sort: 5
 ---
 
-# Network Performance Analysis
+# Network 성능 분석
 
 ## 5.1 Network 병목 분석    
 SQL Server OLTP 프로덕션 환경에서 네트워크와 관련된 문제는 상대적으로 매우 적다. 네트워크와 관련된 대부분의 경우 하드웨어와 드라이버 또는 네트웍 장비에 관련된다.  

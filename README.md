@@ -22,15 +22,14 @@ SQL Server Query Performance Tuning 4th Edition [book link](https://www.amazon.c
 
 ## 책의 목차 안내
 
-1. SQL Query Performance Tuning
-2. Memory Performance Analysis
-3. Disk Performance Analysis
-4. CPU Performance Analysis
-5. Network Performance Analysis
-
-6. SQL Server All Performance
-7. Creating a Baseline
-8. Query Performance Metrics
+1. SQL Query 성능 튜닝
+2. Memory 성능 분석
+3. Disk 성능 분석
+4. CPU 성능 분석
+5. Network 성능 분석
+6. SQL Server 전체 성능
+7. Baseline 생성
+8. Query 성능 수집
 9. Analyzing Query Performance
 10. Index Architecture and Behavior 
 11. Index Analysis

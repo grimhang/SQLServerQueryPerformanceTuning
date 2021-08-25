@@ -2,7 +2,7 @@
 sort: 6
 ---
 
-# SQL Server All Performance
+# SQL Server 전체 성능
 SQL Server 전체 상황을 대략적으로 모니터링 할수 있는 카운터들
 
 ```

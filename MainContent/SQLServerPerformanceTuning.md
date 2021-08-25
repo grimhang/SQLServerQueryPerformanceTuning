@@ -2,7 +2,7 @@
 sort: 1
 ---
 
-# SQL Server Performance Tuning
+# SQL Server 성능 튜닝
 ```
 역자 의견
 1장은 숲에 관한 이야기이다. 각각의 나무를 보는 법은 뒷장부터 소개하지만 여기서는 전체적인 숲을 보면서
