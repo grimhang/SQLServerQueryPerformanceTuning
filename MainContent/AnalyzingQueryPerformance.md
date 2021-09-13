@@ -108,3 +108,86 @@ FROM sys.fn_xe_file_target_read_file('C:\Sessions\QueryPerformanceMetrics*.xel',
         몇가지 경우 시스템모니터 결과에 CPU상에 큰 스트레스를 볼수 있다. 이런 종류의 작업은 저장프로시저 재컴파일, 집계함수, 데이터 정렬, 해시조인등가 비슷한 CPU위주의 작업들이다. 그런 경우 cpu_time 필드로 정렬하여 가장 큰 cpu부하가 발생하는 쿼리를 실벽할수 있다.
 
 
+- ### c. 다중 실행에서 고비용 쿼리
+    이전에 언급한것처럼 때때로 1개의 쿼리 자체는 고비용 쿼리가 아니지만 같은 쿼리가 여러번 자주 실행됨으로써 누적상황으로 보면 시스템 자원에 대한 압박으로 될수 있을 수도 있다. 이런 상황에서 logical_reads필드순으로 정렬하는것은 식별에 전혀 도움이 안된다. 이런 경우 대신에 해당 쿼리가 여러번 실행될때의 전체 CPU 시간 또는 누적 duration으로 판단해야 한다.
+
+        * 세션 결과 쿼리와 관련있는 몇몇 값들을 그룹핑
+        * 쿼리 저장소안의 정보 쿼리하기
+        * 프로덕션 서버에서 정보를 얻기위해 sys.dm_exec_query_stats DMO 사용하기. 이것은 이 데이터가 현재 프로시저 캐시에
+          있는 것이므로 알려진 기록에 의존하지 않거나 최근에 발생한 문제를 다루고 있다고 가정합니다.
+
+    만약 정확한 데이터의 기록 보기를 찾고 있다면 확장이벤트 수집 데이터 또는 해당 데이터를 얼마나 자주 삭제하는것에 의존하는 쿼리저장소를 이용해야 한다. 쿼리 저장소는 집계된 데이터이기 때문에 이런 경우에 사용할 수 있다. 그러나 오로지 집계된 데이터이다. 각각의 실행에 대해 상세하게 원한다면 확장이벤트로 다시 돌아가야 한다.
+
+    일단 xevent 수집데이터를 테이블로 저장하면 SELECT 쿼리를 통해 같은 쿼리가 여러번 실행된 총 읽기 수를 알수 있다. 
+    ```sql
+    SELECT COUNT(*) AS TotalExecutions,
+        st.xEventName,
+        st.SQLText,
+        SUM(st.Duration) AS DurationTotal,
+        SUM(st.CpuTime) AS CpuTotal,
+        SUM(st.LogicalReads) AS LogicalReadTotal,
+        SUM(st.PhysicalReads) AS PhysicalReadTotal
+    FROM Session_Table AS st
+    GROUP BY st.xEventName, st.SQLText
+    ORDER BY LogicalReadTotal DESC;
+    ```
+
+    TotalExecutions 컬럼은 실행횟수이다. LogicalReadTotal 컬럼은 쿼리의 다중실행에 따른 총 누적 reads수이다. 
+
+    이런 방법으로 식별한 고비용 쿼리는 단일실행에서 고비용 쿼리보다 전체 워크로드 관점으로 보면 더 좋은 정보이다. 예를 들면 50읽기가 필요한 쿼리가 1000번 실행될 경우 각각의 실행은 매우 부담없다. 그러나 전체 읽기수 입장으로 보면 싸지 않을 수 있다. 읽기수를 줄이기 위해 이런 쿼리를 10만큼 줄이면 10 x 1000 = 10,000만큼 줄인게 되므로 단일 쿼리에서 5,000 reads를 줄이는 것보다 효율적이다.
+
+    이 접근 방식의 문제는 대부분의 쿼리가 WHERE 절에 다양한 기준 세트를 갖거나 프로시저 호출에 매번 다른 값이 전달된다는 것입니다. 이는 파라메터를 가지는 쿼리나 프로시저 기준으로 간단한 그룹핑도 불가능하다. 다양한 방법을 통해 이문제를 해결할 수 있다. 확장이벤트를 사용하기 때문에 실제로 작동할 수 있다. 예를 들면 rpc_completed 이벤트는 프로시저명을 필드로 캡처할 수 있기에 이 컬럼 기준으로 그룹핑하면 된다. 배치에서는 query_hash 필드를 항상 리턴하므로 그 기준으로 그룹핑하면 된다. 다른 방법은 파라메터를 제거하는것과 같은 방법(Microsoft Developers Network : http://bit.ly/1e1I38f)으로 데이터를 정제하는것이다. 비록 원래는 SQL Server 2005에서 작성되었지만 기본 컨셉은 최신 SQL Server에서도 잘 작동할 것이다.
+
+    ```sql
+    SELECT s.TotalExecutionCount,
+        t.text,
+        s.TotalExecutionCount,
+        s.TotalElapsedTime,
+        s.TotalLogicalReads,
+        s.TotalPhysicalReads
+    FROM
+    (
+        SELECT deqs.plan_handle,
+        SUM(deqs.execution_count) AS TotalExecutionCount,
+        SUM(deqs.total_elapsed_time) AS TotalElapsedTime,
+        SUM(deqs.total_logical_reads) AS TotalLogicalReads,
+        SUM(deqs.total_physical_reads) AS TotalPhysicalReads
+        FROM sys.dm_exec_query_stats AS deqs
+        GROUP BY deqs.plan_handle
+    ) AS s
+        CROSS APPLY sys.dm_exec_sql_text(s.plan_handle) AS t
+    ORDER BY s.TotalLogicalReads DESC;
+    ```
+
+    DMO 실행으로부터 가능한 이점의 다른 방법은 집계된 메카니즘으로써 query_hash 와 query_plan_hash를 사용하는 것이다. 저장프로시저나 파라메터화된 쿼리가 다른 값이 전달되지만 query_hash와 query_plan_hash는 대부분의 시간동안 유일하다. 즉, 해시 값에 대해 집계하여 다른 방법으로는 볼 수 없는 일반적인 계획 또는 일반적인 쿼리 패턴을 식별할 수 있습니다. 아래 쿼리는 이전 쿼리를 살짝 수정한것이다.
+
+    ```sql
+    SELECT s.TotalExecutionCount,
+        t.text,
+        s.TotalExecutionCount,
+        s.TotalElapsedTime,
+        s.TotalLogicalReads,
+        s.TotalPhysicalReads
+    FROM
+    (
+        SELECT deqs.query_plan_hash,
+            SUM(deqs.execution_count) AS TotalExecutionCount,
+            SUM(deqs.total_elapsed_time) AS TotalElapsedTime,
+            SUM(deqs.total_logical_reads) AS TotalLogicalReads,
+            SUM(deqs.total_physical_reads) AS TotalPhysicalReads
+        FROM sys.dm_exec_query_stats AS deqs
+        GROUP BY deqs.query_plan_hash
+    ) AS s
+        CROSS APPLY
+        (
+            SELECT plan_handle
+            FROM sys.dm_exec_query_stats AS deqs
+            WHERE s.query_plan_hash = deqs.query_plan_hash
+        ) AS p
+        CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS t
+    ORDER BY TotalLogicalReads DESC;        
+    ```
+
+    이것은 세션 데이터를 수집하는 데 필요한 모든 작업보다 훨씬 쉬워서 왜 확장 이벤트를 계속 사용했었는지 의문이 들정도로 쉽다. 주된 이유는 이번장의 시작부분에서 언급한 것처럼 정확도 때문이다. sys.dm_exec_quer_stats 뷰는 해당 플랜이 메모리상에 존재하는 동안만의 집계데이터이다.반면에 확장이벤트 세션은 그것을 사용했던 시간동안의 추적 기록이다. 확장이벤트 결과를 데이터베이스에 테이블로 저장할 수도 있다. 특정시점이 아닌 일정 기간동안 이벤트의 기록을 생성할수도 있다. 그러나 성능 문제의 많은 문제 해결은 최근 서버에서 발생한 일에 초점을 맞추고 있으며 sys.dm_exec_query_stats는 캐시를 기반으로 하기 때문에 DMV는 일반적으로 시스템의 최근 그림을 나타내므로 sys.dm_exec_query_stats는 매우 중요한. 그러나 지금 실행 속도가 느린 훨씬 더 전술적인 상황을 다루고 있다면 sys.dm_exec_requests를 사용할 것입니다.
+
+    쿼리 저장소는 사용 편의성에서는 DMO와 동일합니다. 그러나 그 안에 있는 정보는 캐시에 종속되지 않으므로 DMO 데이터보다 유용할 수 있습니다. 그러나 DMO와 마찬가지로 쿼리 저장소에는 확장 이벤트 세션에 대한 자세한 기록이 없습니다.
