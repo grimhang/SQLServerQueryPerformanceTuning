@@ -191,3 +191,28 @@ FROM sys.fn_xe_file_target_read_file('C:\Sessions\QueryPerformanceMetrics*.xel',
     이것은 세션 데이터를 수집하는 데 필요한 모든 작업보다 훨씬 쉬워서 왜 확장 이벤트를 계속 사용했었는지 의문이 들정도로 쉽다. 주된 이유는 이번장의 시작부분에서 언급한 것처럼 정확도 때문이다. sys.dm_exec_quer_stats 뷰는 해당 플랜이 메모리상에 존재하는 동안만의 집계데이터이다.반면에 확장이벤트 세션은 그것을 사용했던 시간동안의 추적 기록이다. 확장이벤트 결과를 데이터베이스에 테이블로 저장할 수도 있다. 특정시점이 아닌 일정 기간동안 이벤트의 기록을 생성할수도 있다. 그러나 성능 문제의 많은 문제 해결은 최근 서버에서 발생한 일에 초점을 맞추고 있으며 sys.dm_exec_query_stats는 캐시를 기반으로 하기 때문에 DMV는 일반적으로 시스템의 최근 그림을 나타내므로 sys.dm_exec_query_stats는 매우 중요한. 그러나 지금 실행 속도가 느린 훨씬 더 전술적인 상황을 다루고 있다면 sys.dm_exec_requests를 사용할 것입니다.
 
     쿼리 저장소는 사용 편의성에서는 DMO와 동일합니다. 그러나 그 안에 있는 정보는 캐시에 종속되지 않으므로 DMO 데이터보다 유용할 수 있습니다. 그러나 DMO와 마찬가지로 쿼리 저장소에는 확장 이벤트 세션에 대한 자세한 기록이 없습니다.
+
+- ### c. 느린 쿼리 식별
+    사용자 경험은 요청의 응답 시간에 크게 영향을 받기 때문에 들어오는 SQL 쿼리의 실행 시간을 정기적으로 모니터링하고 느리게 실행되는 쿼리의 응답 시간을 찾아 쿼리 성능 기준을 생성해야 합니다. 느리게 실행되는 쿼리의 응답 시간(또는 지속 시간)이 허용할 수 없게 되면 성능 저하의 원인을 분석해야 합니다. 그러나 성능이 느린 모든 쿼리가 리소스 문제로 인해 발생하는 것은 아닙니다.  차단과 같은 다른 문제로 인해 쿼리 성능이 저하될 수도 있습니다. 차단은 12장에서 자세히 다룹니다.
+
+    느리게 실행되는 쿼리를 식별하려면 다음과 같이 세션 데이터에 대한 쿼리를 변경하여 주문 대상을 변경하십시오.
+    ```sql
+    WITH xEvents
+    AS  (   
+            SELECT object_name AS xEventName,
+                CAST(event_data AS XML) AS xEventData
+            FROM sys.fn_xe_file_target_read_file('Q:\Sessions\QueryPerformanceMetrics*.xel', NULL, NULL, NULL)
+        )
+    SELECT xEventName,
+        xEventData.value('(/event/data[@name="duration"]/value)[1]', 'bigint') Duration,
+        xEventData.value('(/event/data[@name="physical_reads"]/value)[1]', 'bigint') PhysicalReads,
+        xEventData.value('(/event/data[@name="logical_reads"]/value)[1]', 'bigint') LogicalReads,
+        xEventData.value('(/event/data[@name="cpu_time"]/value)[1]', 'bigint') CpuTime,
+        xEventData.value('(/event/data[@name="batch_text"]/value)[1]', 'varchar(max)') BatchText,
+        xEventData.value('(/event/data[@name="statement"]/value)[1]', 'varchar(max)') StatementText,
+        xEventData.value('(/event/data[@name="query_plan_hash"]/value)[1]', 'binary(8)') QueryPlanHash
+    FROM xEvents
+    ORDER BY Duration DESC;
+    ```
+
+    느리게 실행되는 시스템의 경우 최적화 프로세스 전후에 느리게 실행되는 쿼리의 기간을 기록해야 합니다. 최적화 기술을 적용한 후에는 시스템에 대한 전반적인 영향을 계산해야 합니다. 최적화 단계가 다른 쿼리에 부정적인 영향을 주어 쿼리를 느리게 만들 수 있습니다.
