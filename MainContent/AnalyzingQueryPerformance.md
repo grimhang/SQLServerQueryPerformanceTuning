@@ -252,7 +252,7 @@ GO
 SET SHOWPLAN_XML OFF;
 GO
 ```
-![XE시작화면](image/09/ExecPlan01_Xml.png)  
+![XE시작화면](image/09/ExecPlan01_Xml.png){: width="70%"}  
 
 - ### a. 쿼리 실행계획 분석
     쿼리를 선택하고 Ctrl + L 을 누르면 예상실행계획이 나온다. 
