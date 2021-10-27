@@ -117,6 +117,7 @@ WHERE dest.text LIKE 'CREATE PROC dbo.AddressByCity%';
 ```
 그림 추가>
 얼마나 나쁜 매개변수 스니핑이 발생할 수 있는지 보여주기 위해 프로시저 실행 순서를 반대로 할 수 있습니다. 먼저 DBCC FREEPROCCACHE를 실행하여 버퍼 캐시를 플러시합니다. 이 작업은 캐시에서 단일 실행 계획만 제거하는 여기에 표시된 작업을 주의 깊게 수행하지 않는 한 프로덕션 시스템에 대해 실행해서는 안 됩니다.
+
 ```sql
 DECLARE @PlanHandle VARBINARY(64);
 
