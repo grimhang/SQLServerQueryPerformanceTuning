@@ -60,6 +60,10 @@ GO
 EXEC dbo.AddressByCity @City = N'London';
 ```
 이것은 다음과 같은 결과가 나올 것이다.  
+```
+Reads: 219
+Duration: 97.1ms
+```
 ![XE이벤트추가](image/19/executionPlanAddrByCity.png)   
  
 
@@ -77,6 +81,9 @@ FROM Person.Address AS a
     JOIN Person.StateProvince AS sp
         ON a.StateProvinceID = sp.StateProvinceID
 WHERE a.City = @City;
+
+Reads: 1084
+Duration: 127.5ms
 ```
 이 쿼리를 실행하면 I/O와 실행시간이 다르다.  
 ![XE이벤트추가](image/19/localVariable.png)   
