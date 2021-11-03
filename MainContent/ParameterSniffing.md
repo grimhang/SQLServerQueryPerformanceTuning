@@ -81,7 +81,8 @@ FROM Person.Address AS a
     JOIN Person.StateProvince AS sp
         ON a.StateProvinceID = sp.StateProvinceID
 WHERE a.City = @City;
-
+```
+```
 Reads: 1084
 Duration: 127.5ms
 ```
