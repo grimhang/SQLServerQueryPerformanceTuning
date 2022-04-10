@@ -2,7 +2,7 @@
 
 
 이 문서는 Grant Fritchey의 SQL Server Query Performance Tuning을 번역한 것을 바탕으로 하였다.  
-원본책이 SQL Server 2014 버전으로 쓰여져 있어서 오래된 내용을 삭제 후 최신 내용으로 바꾸었고 나와 견해가 틀린 일부는 내 생각 위주로 대체하였다.  
+원본책이 SQL Server 2014 버전으로 쓰여져 있어서 하다가 중간에 2017버전으로 교체했고 내용도 중간에 약간 버전업되었으며 그래도 오래된 내용이나 나와 견해가 틀린 일부는 내 생각 위주로 대체하였다.  
 원본 책 내용 80%, 내가 바꾼거나 추가한 게 20%쯤.
 
 매우 좋은 책이다.  
@@ -18,7 +18,7 @@
 
 문의 : 박성출 grimhan골뱅이daum.net
 
-SQL Server Query Performance Tuning 4th Edition [book link](https://www.amazon.com/SQL-Server-Query-Performance-Tuning-ebook/dp/B01JC6P8MC)
+SQL Server 2017 Query Performance Tuning: Troubleshoot and Optimize Query Performance 5th ed. Edition [book link](https://www.amazon.com/Server-2017-Query-Performance-Tuning/dp/1484238877)
 
 ## 책의 목차 안내
 
@@ -30,7 +30,7 @@ SQL Server Query Performance Tuning 4th Edition [book link](https://www.amazon.c
 6. SQL Server 전체 성능
 7. Baseline 생성
 8. Query 성능 수집
-9. Analyzing Query Performance
+9. Query 성능 분석
 10. Index Architecture and Behavior 
 11. Index Analysis
 12. Database Engine Tuning Advisor
