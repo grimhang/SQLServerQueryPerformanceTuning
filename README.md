@@ -13,8 +13,7 @@
 하지만 이 책에서 제일 높이 평가하고 싶은 점은 이해하기 쉬운 영어로 쓰여졌단 것이다. 저자가 유머와 이상한 비유를 들어서 설명하는 책이 많은데 같은 언어권에 사는 사람이었으면 위트있는 좋은 책이라고 느꼈을 지라도 나처럼 외국인의 경우 이해하기 어려울 수 밖에 없다. 하지만 이책은 그런 것들을 최대한 포기하고 쉬운 문법으로 쓰여져 있기 때문에 더욱 더 존경받을 만 하다.
 
 
-정말 좋은 책이지만 내가 저작권을 어길 수 없기 때문에 아쉽게도 정리본 정도로만 기록할 것이고 혹시나 나중에 문제 되면 말없이
-삭제 예정이다.
+정말 좋은 책이지만 내가 저작권을 어길 수 없기 때문에 아쉽게도 정리본 정도로만 기록할 것이고 혹시나 나중에 문제 되면 말없이 삭제 예정이다.
 
 문의 : 박성출 grimhan골뱅이daum.net
 
@@ -31,7 +30,7 @@ SQL Server 2017 Query Performance Tuning: Troubleshoot and Optimize Query Perfor
 7. Baseline 생성
 8. Query 성능 수집
 9. Query 성능 분석
-10. Index Architecture and Behavior 
+10. 인덱스 아키텍처와 동작
 11. Index Analysis
 12. Database Engine Tuning Advisor
 13. Key Lookups and Solutions
