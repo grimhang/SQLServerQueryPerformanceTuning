@@ -1,5 +1,6 @@
 ---
 sort: 9
+comments: true
 ---
 
 # Query 성능 분석

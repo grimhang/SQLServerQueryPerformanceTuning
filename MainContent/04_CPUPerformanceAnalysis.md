@@ -1,5 +1,6 @@
 ---
 sort: 4
+comments: true
 ---
 
 # CPU 성능 분석

@@ -1,5 +1,6 @@
 ---
 sort: 8
+comments: true
 ---
 
 # Query 성능 수집

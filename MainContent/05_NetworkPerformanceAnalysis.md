@@ -1,5 +1,6 @@
 ---
 sort: 5
+comments: true
 ---
 
 # Network 성능 분석

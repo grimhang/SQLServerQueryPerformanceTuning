@@ -1,5 +1,6 @@
 ---
 sort: 2
+comments: true
 ---
 
 # Memory 성능 분석

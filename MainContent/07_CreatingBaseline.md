@@ -1,5 +1,6 @@
 ---
 sort: 7
+comments: true
 ---
 
 # Baseline 생성

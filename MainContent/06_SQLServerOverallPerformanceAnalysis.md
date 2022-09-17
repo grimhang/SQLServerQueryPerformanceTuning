@@ -1,5 +1,6 @@
 ---
 sort: 6
+comments: true
 ---
 
 # SQL Server 전체 성능

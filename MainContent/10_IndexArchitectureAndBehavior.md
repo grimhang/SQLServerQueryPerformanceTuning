@@ -1,5 +1,6 @@
 ---
 sort: 10
+comments: true
 ---
 
 # 인덱스 아키텍처와 동작

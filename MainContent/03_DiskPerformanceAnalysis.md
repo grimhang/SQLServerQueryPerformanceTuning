@@ -1,5 +1,6 @@
 ---
 sort: 3
+comments: true
 ---
 
 # Disk 성능 분석

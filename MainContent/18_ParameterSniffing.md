@@ -1,5 +1,6 @@
 ---
 sort: 18
+comments: true
 ---
 
 # 파라메터 스니핑
