@@ -21,44 +21,44 @@ comments: true
 ```sql
 CREATE PROCEDURE dbo.ProductDetails (@ProductID INT)
 AS
-DECLARE @CurrentDate DATETIME = GETDATE();
-SELECT p.Name,
-    p.Color,
-    p.DaysToManufacture,
-    pm.CatalogDescription
-FROM Production.Product AS p
-    JOIN Production.ProductModel AS pm
-        ON pm.ProductModelID = p.ProductModelID
-WHERE p.ProductID = @ProductID
-    AND pm.ModifiedDate < @CurrentDate;
+    DECLARE @CurrentDate DATETIME = GETDATE();
+    SELECT p.Name,
+        p.Color,
+        p.DaysToManufacture,
+        pm.CatalogDescription
+    FROM Production.Product AS p
+        JOIN Production.ProductModel AS pm
+            ON pm.ProductModelID = p.ProductModelID
+    WHERE p.ProductID = @ProductID
+        AND pm.ModifiedDate < @CurrentDate;
 GO
 ```
 
-이 쿼리의 매개변수는 @ProductID 이고 지역 변수는 @CurrentDate 이다. 매개변수는 저장 프로시저(또는 이 경우 준비된 명령문)에서 정의되지만 지역 변수는 코드의 일부분일 뿐이다. 하지만 WHERE 절에서는 완전히 동일하게 보이기 때문에 이들을 구별하는 것이 중요하다.
+이 쿼리의 매개변수는 @ProductID 이고 지역 변수는 @CurrentDate 이다. 매개변수는 저장 프로시저나 또는 준비된 명령문(prepared statement)에서 정의되지만 지역 변수는 코드의 일부분일 뿐이다. 하지만 WHERE 절에서는 완전히 동일하게 보이기 때문에 이들을 구별하는 것이 중요한 부분이다.
 
-지역 변수를 사용하는 명령문을 다시 컴파일하면 매개변수를 스니핑하는 것과 동일한 방식으로 최적화 프로그램에서 해당 변수를 스니핑할 수 있다. 이것만 알아두세요. 재컴파일과 관련된 이러한 고유한 상황을 제외하고 로컬 변수는 계획을 컴파일할 때 옵티마이저가 알 수 없는 양입니다. 일반적으로 매개변수만 스니핑할 수 있습니다.
+지역 변수를 사용하는 명령문을 다시 컴파일하면 매개변수를 스니핑하는 것과 동일한 방식으로 최적화 프로그램에서 해당 변수를 스니핑할 수 있다. 이것만 알아두세요. 재컴파일과 관련된 이러한 고유한 상황을 제외하고 지역 변수의 값은 실행계획을 컴파일할 때 옵티마이저가 알 수 없다. 일반적으로 매개변수만 스니핑할 수 있음.
 
-매개변수 스니핑이 작동하는지 확인하고 유용하다는 것을 보여주기 위해 다른 절차부터 시작하겠습니다.
+매개변수 스니핑이 작동하는지 확인하고 유용하다는 것을 보여주기 위해 일단 프로시저를 만들어 보자.
 ```sql
 CREATE OR ALTER PROC dbo.AddressByCity @City NVARCHAR(30)
 AS
-SELECT a.AddressID,
-    a.AddressLine1,
-    AddressLine2,
-    a.City,
-    sp.Name AS StateProvinceName,
-    a.PostalCode
-FROM Person.Address AS a
-    JOIN Person.StateProvince AS sp
-        ON a.StateProvinceID = sp.StateProvinceID
-WHERE a.City = @City;
+    SELECT a.AddressID,
+        a.AddressLine1,
+        AddressLine2,
+        a.City,
+        sp.Name AS StateProvinceName,
+        a.PostalCode
+    FROM Person.Address AS a
+        JOIN Person.StateProvince AS sp
+            ON a.StateProvinceID = sp.StateProvinceID
+    WHERE a.City = @City;
 GO
 ```
-프로시저를 생성한 후 파라메터를 사용해 실행했다.
+프로시저를 생성한 후 파라메터를 사용해 실행해 보았다.
 ```sql
 EXEC dbo.AddressByCity @City = N'London';
 ```
-이것은 다음과 같은 결과가 나올 것이다.  
+다음과 같은 결과가 나올 것이다.  
 ```
 Reads: 219
 Duration: 97.1ms
@@ -66,7 +66,8 @@ Duration: 97.1ms
 ![XE이벤트추가](image/19/executionPlanAddrByCity.png)   
  
 
-옵티마이저는 London 값을 스니핑하고 주소 테이블의 통계 내에서 London 시가 나타내는 데이터 분포를 기반으로 계획에 도달했다. 해당 쿼리 또는 테이블의 인덱스에 다른 조정 기회가 있을 수 있지만 계획은 London 값 및 기존 데이터 구조에 최적이다. 이와 같이 로컬 변수를 사용하여 동일한 쿼리를 작성할 수 있습니다.
+옵티마이저는 London 값을 스니핑하고 주소 테이블의 통계 내에서 London이 나타내는 데이터 분포 통계를 기반으로 실행계획을 만들었다. 해당 쿼리 또는 테이블의 인덱스에 다른 조정 기회가 있을 수 있지만 계획은 London 값 및 기존 데이터 구조에 최적이다. 또한 이 과정을 로컬 변수를 사용하여 동일한 쿼리를 작성할 수도 있다.
+
 ```sql
 DECLARE @City NVARCHAR(30) = N'London';
 
@@ -88,11 +89,11 @@ Duration: 127.5ms
 이 쿼리를 실행하면 I/O와 실행시간이 다르다.  
 ![XE이벤트추가](image/19/localVariable.png)   
  
-실행 시간이 증가했고 총 읽기 횟수도 219개에서 1084개로 증가했다. 이것은 그림에 표시된 새 실행 계획을 살펴봄으로써 다소 설명됩니다.
+실행 시간이 증가했고 총 읽기 횟수도 219개에서 1084개로 증가했다. 이것은 위 그림에 표시된 새 실행 계획으로 알 수 있다.
  
-옵티마이저가 지역 변수 값을 샘플링하거나 스니핑할 수 없었기 때문에 통계에서 평균 행 수를 사용해야 했습니다. Index Scan 연산자의 속성에서 예상 행 수를 보면 알 수 있습니다. 34.113을 보여줍니다. 그러나 반환된 데이터를 보면 실제로 London 값에 대해 434개의 행이 있습니다. 간단히 말해서 옵티마이저는 434개의 행을 검색해야 한다고 생각하면 병합 조인을 사용하여 계획을 만들고 219개만 읽습니다. 그러나 약 34개 행만 반환한다고 생각하는 경우 중첩 루프 조인이 있는 계획을 사용합니다. 중첩 루프의 특성에 따라 상위 데이터 집합의 각 값에 대해 하위 값을 한 번씩 찾는 중첩 루프의 특성으로 인해 1,084개의 읽기 및 느린 성능.
+옵티마이저가 지역 변수 값을 샘플링하거나 스니핑할 수 없었기 때문에 통계에서 평균 행 수를 사용해야 했고 Index Scan 연산자의 속성에서 예상 행 수를 보면 알 수 있다. 34.113을 보여준다. 그러나 반환된 데이터를 보면 실제로 London 값에 대해 434개의 행이 있다. 간단히 말해서 옵티마이저는 434개의 행을 검색해야 한다고 생각하면 병합 조인을 사용하여 계획을 만들고 219개만 읽지만 만약 약 34개 행만 반환한다고 생각하는 경우 중첩 루프 조인이 있는 계획을 사용한다. 중첩 루프의 특성에 따라 상위 데이터 집합의 각 값에 대해 하위 값을 한 번씩 찾는 중첩 루프의 특성으로 인해 1,084개의 읽기 및 느린 성능이 발생했다.
 
-즉 매개변수 스니핑이 실행되어 성능이 향상됩니다. 이제 매개변수 스니핑이 나빠지면 어떻게 되는지 봅시다.
+즉 첫번째 경우처럼 매개변수 스니핑이 작동하면 일반적으로 성능이 향상된다. 하지만 그렇지 않고 매개변수 스니핑이 어떤 경우 안좋게 되는 지 알아 보자.
 
 ## <font color='dodgerblue' size="6">2) 악성 파라메터 스니핑</font>  
 매개변수 스니핑은 통계에 문제가 있을 때 문제를 만듭니다. 매개변수에 전달된 값은 통계 내의 데이터 및 데이터 분포를 나타낼 수 있습니다. 이 경우 좋은 실행 계획을 볼 수 있습니다. 그러나 전달된 매개변수가 테이블의 나머지 데이터를 나타내지 않으면 어떻게 될까요? 이 상황은 데이터가 평균이 아닌 방식으로 배포되기 때문에 발생할 수 있습니다. 예를 들어, 통계에 있는 대부분의 값은 몇 개의 행(예: 6)만 반환하지만 일부 값은 수백 개의 행을 반환합니다. 많은 양의 데이터가 공통적으로 분포되어 있고 흔하지 않은 작은 값 집합이 있는 것과 같은 방식으로 작동합니다. 이 경우 대표성이 없는 데이터를 기반으로 실행 계획이 생성되지만 대부분의 쿼리에는 유용하지 않습니다. 이 상황은 가장 자주 갑자기, 때로는 매우 심각한 성능 저하를 통해 스스로를 드러냅니다. 재컴파일 이벤트가 매개변수에 전달되는 더 나은 대표 데이터 값을 허용할 때 겉보기에 무작위로 보일 수도 있습니다.
