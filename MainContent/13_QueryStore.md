@@ -91,7 +91,7 @@ EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 3849;
 이로써 쿼리 저정소 안에 있는 정보를 얻을 수 있다는 것을 확인했다.
 
 - ### b. 쿼리 저장소가 수집하는 정보
-    쿼리 저장소는 상당히 좁지만 매우 풍부한 데이터 집합을 수집합니다. 그림 11-2는 시스템 테이블과 그 관계를 나타냅니다.
+    쿼리 저장소는 상당히 좁지만 매우 풍부한 데이터 집합을 수집합니다. 그림 13-2는 시스템 테이블과 그 관계를 나타냅니다.
 
     ![XE시작화면](image/13/13_02_QueryStoreSystemViews.png)  
 
