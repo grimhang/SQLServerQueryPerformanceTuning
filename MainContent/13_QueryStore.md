@@ -9,110 +9,124 @@ comments: true
 
 쿼리 저장소는 세 가지 주요한 기능.  
 
-    1. 쿼리의 성능수치와 실행 계획 등을 데이터베이스의 별도 저장공간에 영구적으로 저장한 후 다양한 방법으로 쉽게 성능 정보 확인.  
-    2. 실행 계획 동작을 직접 제어할수 있는데 쉽게 가능하도록.  
-    3. 데이터베이스 업그레이드 시 시스템을 보호할 수 있는 위한 새로운 안전하며 보고기능이 있는 방식을 사용하여 쉽게 파악 가능.  
+    1. 쿼리의 성능수치와 실행 계획 기록들을 데이터베이스의 별도 저장공간에 영구적으로 저장하고 다양한 방법으로 쉽게 성능 정보 확인 가능.  
+    2. 실행 계획 동작을 직접 제어를 할 수 있는데 그것도 쉽게.  
+    3. 데이터베이스 업그레이드 할때 시스템을 보호할 수 있는 위한 새로운 안전하며 보고기능이 있는 방식을 사용하여 혹시 발생 할수 있는 
+        문제를 쉽게 파악 가능.  
 
 이번 장에서는 다음과 같은 것을 설명할 예정이다.
 
     - 쿼리 저장소의 작동 방식 및 수집하는 정보 
-    - 쿼리 저장소 동작에 대해 Management Studio를 통해 노출되는 보고서 및 메커니즘 
-    - 실행계획 강제 적용과 같은 SQL Server 및 Azure SQL 데이터베이스에서 사용되는 실행 계획을 제어하는 방법
+    - 쿼리 저장소 동작에 대해 SSMS의 UI를 통해 볼수 있는 보고서 및 메커니즘 
+    - 실행계획 강제 적용과 같은 SQL Server 및 Azure SQL 데이터베이스의 실행 계획을 제어하는 방법
     - 시스템 활동을 보호하기 위한 업그레이드 방법
 
-이전에는 쿼리의 세부문제까지 조사하기 위한 확장 이벤트라는 매우 좋은 수단이 있었지만 제대로 사용하려면 많은 선행지식이 필요했다. 이에 비해 쿼리 저장소는 대략적인 내용 위주로 보여주지만 쿼리 성능정보를 비전문가도 쉽게 파악할 수 있기 때문에 우선적으로 사용하는 것이 좋다. 
+예전에도 쿼리의 세부사항까지 조사할수 있는 확장 이벤트라는 매우 좋은 수단이 있었지만 제대로 사용하려면 많은 선행지식이 필요했다. 이에 비해 쿼리 저장소는 대략적인 내용 위주로 보여주지만 비전문가도 쿼리 성능정보를 쉽게 파악할 수 있기 되었다. 때문에 우선적으로 사용하는 것이 좋다.  
 
 ## <font color='dodgerblue' size="6">13.1 쿼리 저장소 함수와 디자인</font>
 
-쿼리 저장소는 시스템에 미치는 영향 측면에서는 아마도 가장 가벼운 메커니즘일 것이며 시스템의 쿼리 성능을 제대로 이해하는 데 필요한 핵심 정보 위주로 제공한다. 또한 쿼리 저장소에 대한 모든 작업은 시스템 뷰를 이용해 수행되기 때문에 T-SQL을 사용하여 우리가 직접 쿼리할수도 있다. 기존의 DMO, 추적 이벤트 및 확장 이벤트로 성능 정보를 수집하는 것은 쿼리 저장소의 도입으로 인해 옛날 방식으로 간주될 수 있다.
+시스템의 쿼리 성능을 조사하는 방법은 여러가지가 있으나 그 중에서도 쿼리 저장소가 시스템에 미치는 오버헤드 측면에서는 아마도 가장 가벼운 메커니즘일 것이며  필요한 핵심 정보 위주로 제공한다. 또한 쿼리 저장소에 대한 모든 작업은 시스템 뷰를 이용해 수행되기 때문에 T-SQL을 사용하여 우리가 직접 쿼리할수도 있다.  
+
+**기존의 DMO, 추적 이벤트 및 확장 이벤트로 성능 정보를 수집하는 것은 쿼리 저장소의 도입으로 인해 옛날 방식으로 간주될 수 있다.**
 
 - ### a. 쿼리 저장소 활동
     쿼리 저장소는 두 가지 정보를 수집한다.  
     
-    - 첫째로는 시스템에서 각 쿼리 동작의 집계된 정보를 수집한다. 
-    - 둘째, 쿼리 저장소는 기본적으로 쿼리당 최대 계획 수(기본적으로 200개)까지 시스템에서 생성된 모든 실행 계획을 캡처하며 데이터베이스별로 쿼리 저장소를 켜고 끌 수 있다. 켜져 있으면 쿼리 저장소가 그림 13-1과 같이 작동한다.
+    - 첫째로는 시스템에서 각 쿼리 동작의 **집계**된 정보를 수집한다. 
+    - 둘째, 쿼리 저장소는 기본적으로 쿼리당 최대 계획 수(기본적으로 200개)까지 시스템에서 생성된 모든 실행 계획을 캡처
+    
+    데이터베이스 별로 쿼리 저장소를 켜고 끌 수 있다. 켜져 있으면 쿼리 저장소가 그림 13-1과 같이 작동한다.
 
     ![XE시작화면](image/13/13_01_QueryStoreCollectionData01.png)  
 
     그림 13-1 데이터를 수집하는 쿼리 저장소 활동
 
-    쿼리 최적화 프로세스는 일반적으로 수행된다. 쿼리가 일단 시스템에 제출되면 실행 계획이 생성되고(자세한 내용은 15장 참조) 계획 캐시에 저장된다.(16장 참조). 이러한 프로세스가 완료되면 쿼리 저장소는 계획 캐시에서 실행 계획을 캡처하는 비동기적 작업을 수행한다. 처음에는 이러한 계획을 임시 저장을 위해 별도의 메모리에 기록한다. 그러면 다른 비동기 프로세스가 이러한 실행 계획을 데이터베이스의 쿼리 저장소에 기록한다. 이 모든 것은 시스템 내의 다른 프로세스에 미치는 영향이 0은 아니지만 최소화되도록 하는 비동기식 프로세스이며 이 프로세스의 흐름에 대한 유일한 예외는 이 장의 뒷부분에서 다룰 계획 강제 적용 기능이다.    
+    쿼리 최적화 프로세스는 정상적으로 실행된다. 쿼리가 일단 시스템에 제출되면 실행 계획이 생성되며(자세한 내용은 15장 참조) 계획 캐시에 저장된다.(16장 참조). 이러한 과정이 완료되면 쿼리 저장소는 계획 캐시에서 실행 계획을 캡처하는 작업을 비동기적으로 수행한다. 처음에는 이러한 계획을 임시 저장을 위해 별도의 메모리에 기록한다. 그러면 다른 비동기 프로세스가 이러한 실행 계획을 데이터베이스의 쿼리 저장소에 기록한다. 이 모든 것은 시스템 내의 다른 프로세스에 미치는 영향이 0은 아니지만 최소화되도록 하는 비동기식 프로세스이며 이 프로세스의 흐름에 대한 유일한 예외는 이 장의 뒷부분에서 다룰 실행계획 강제 적용 기능 뿐이다.    
 
-    그런 다음 다른 쿼리와 마찬가지로 쿼리 실행이 수행된다. 쿼리 실행이 완료되면 읽기 수, 쓰기 수, 쿼리 기간 및 대기 통계와 같은 쿼리 런타임 메트릭이 다시 비동기식으로 별도의 메모리 공간에 기록되며 다른 비동기 프로세스가 나중에 해당 정보를 디스크에 기록한다. 이 후 수집되어 디스크에 기록된 정보가 집계된다. 기본 집계 시간은 60분 간격입니다.  
+    그런 다음 다른 쿼리와 마찬가지로 쿼리 실행이 수행된다. 쿼리 실행이 완료되면 읽기 수, 쓰기 수, 쿼리 기간 및 대기 통계와 같은 쿼리 런타임 수치정보들이 다시 비동기식으로 별도의 메모리 공간에 기록되며 다른 비동기 프로세스가 나중에 해당 정보를 디스크에 기록한다. 이 후 수집되어 디스크에 기록된 정보가 집계된다. 기본 집계 시간은 60분 간격이다.  
 
-    쿼리 저장소 시스템 테이블 내에 저장된 모든 정보는 쿼리 저장소가 활성화된 데이터베이스에 영구적으로 기록된다. 쿼리 메트릭과 쿼리에 대한 실행 계획은 데이터베이스에 보관된다. 데이터베이스와 함께 백업되고 데이터베이스와 함께 복원됩니다. 시스템이 오프라인 상태가 되거나 장애 조치되는 경우 아직 메모리에 있고 아직 디스크에 기록되지 않은 일부 쿼리 저장소 정보가 손실될 수 있다. 디스크에 쓰는 기본 간격은 15분. 이것이 집계 데이터라는 점을 고려하면 프로덕션 수준 데이터로 간주되지 않아야 하는 일부 쿼리 저장소 데이터 손실 가능성에 대해 나쁜 간격이 아닙니다. 쿼리 저장소에서 정보를 쿼리하면 메모리 데이터와 디스크에 기록된 데이터가 모두 결합됩니다. 해당 정보에 액세스하기 위해 추가 작업을 수행할 필요가 없습니다. 이 장의 나머지 부분을 계속하기 전에 일부 코드 및 처리를 따라하려면 데이터베이스 중 하나에서 쿼리 저장소를 활성화해야 합니다. 이 명령은 다음을 수행합니다.
+    쿼리 저장소 시스템 테이블 내에 저장된 모든 정보는 쿼리 저장소가 활성화된 데이터베이스에 영구적으로 기록된다. 쿼리에 대한 수치정보들과 쿼리 실행 계획은 데이터베이스에 보관되기 때문에 데이터베이스와 함께 백업되고 데이터베이스와 함께 복원된다. 시스템이 오프라인 상태가 되거나 장애 조치되는 경우 아직 메모리에 있고 아직 디스크에 기록되지 않은 일부 쿼리 저장소 정보가 손실될 수 있다. 디스크에 쓰는 기본 간격은 15분. 이것이 집계 데이터라는 점을 고려하면 프로덕션 수준 데이터로 간주되지 않아야 하는 일부 쿼리 저장소 데이터 손실 가능성에 대해 나쁜 간격이 아니다. 쿼리 저장소에서 정보를 쿼리하면 메모리 데이터와 디스크에 기록된 데이터가 모두 결합되어 보여진다. 해당 정보에 액세스하기 위해 추가 작업을 수행할 필요가 없다.  
+    
+    당연하지만 이 장의 나머지 부분을 계속하기 전, 일부 코드 및 수행과정을 따라하려면 데이터베이스 중 하나에서 쿼리 저장소를 활성화해야 한다. 이 명령은 다음과 같다.
 
-```sql
-ALTER DATABASE AdventureWorks2017 SET QUERY_STORE = ON;
-```
+    ```sql
+    ALTER DATABASE AdventureWorks2017 SET QUERY_STORE = ON;
+    ```
+    ----------------------------
+    <font size="5">쿼리 저장소 실습</font>
+   
+    일단 임의의 저장 프로시저를 만든다.
+    ```sql
+    CREATE OR ALTER PROC dbo.ProductTransactionHistoryByReference 
+    (
+        @ReferenceOrderID int
+    )
+    AS
+    BEGIN
+        SELECT p.Name,
+            p.ProductNumber,
+            th.ReferenceOrderID
+        FROM Production.Product AS p
+            JOIN Production.TransactionHistory AS th
+                ON th.ProductID = p.ProductID
+        WHERE th.ReferenceOrderID = @ReferenceOrderID;
+    END
+    ```
 
-따라갈 때 쿼리 저장소에 쿼리가 있는지 확인하기 위해 이 저장 프로시저를 사용해 보겠습니다.
+    아래처럼 세 가지 파라메터 값으로 저장 프로시저를 실행한 후 매번 캐시에서 제거하게 되면 실제로 세 가지 다른 실행 계획을 갖게 된다.
 
-```sql
-CREATE OR ALTER PROC dbo.ProductTransactionHistoryByReference (
-    @ReferenceOrderID int
-)
-AS
-BEGIN
-    SELECT p.Name,
-        p.ProductNumber,
-        th.ReferenceOrderID
-    FROM Production.Product AS p
-        JOIN Production.TransactionHistory AS th
-            ON th.ProductID = p.ProductID
-    WHERE th.ReferenceOrderID = @ReferenceOrderID;
-END
-```
+    ```sql
+    DECLARE @Planhandle VARBINARY(64);
 
-이 세 가지 파라메터 값으로 저장 프로시저를 실행하고 매번 캐시에서 제거하면 실제로 세 가지 다른 실행 계획을 갖게 됩니다.
+    EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 0;    -- 첫번째 실행
 
-```sql
-DECLARE @Planhandle VARBINARY(64);
+    SELECT @Planhandle = deps.plan_handle
+    FROM sys.dm_exec_procedure_stats AS deps
+    WHERE deps.object_id = OBJECT_ID('dbo.ProductTransactionHistoryByReference');
 
-EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 0;
+    IF @Planhandle IS NOT NULL
+    BEGIN
+        DBCC FREEPROCCACHE(@Planhandle);    -- 플랜캐시 지우기
+    END
+    ------------------------------------------------------------------------------
+    EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 53465;    -- 두번째 실행
 
-SELECT @Planhandle = deps.plan_handle
-FROM sys.dm_exec_procedure_stats AS deps
-WHERE deps.object_id = OBJECT_ID('dbo.ProductTransactionHistoryByReference');
+    SELECT @Planhandle = deps.plan_handle
+    FROM sys.dm_exec_procedure_stats AS deps
+    WHERE deps.object_id = OBJECT_ID('dbo.ProductTransactionHistoryByReference');
 
-IF @Planhandle IS NOT NULL
-BEGIN
-    DBCC FREEPROCCACHE(@Planhandle);
-END
+    IF @Planhandle IS NOT NULL
+    BEGIN
+        DBCC FREEPROCCACHE(@Planhandle);    -- 플랜캐시 지우기
+    END
+    ------------------------------------------------------------------------------
+    EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 3849;    -- 세번째 실행
+    ```
 
-EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 53465;
-
-SELECT @Planhandle = deps.plan_handle
-FROM sys.dm_exec_procedure_stats AS deps
-WHERE deps.object_id = OBJECT_ID('dbo.ProductTransactionHistoryByReference');
-
-IF @Planhandle IS NOT NULL
-BEGIN
-    DBCC FREEPROCCACHE(@Planhandle);
-END
-
-EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 3849;
-```
-
-이로써 쿼리 저정소 안에 있는 정보를 얻을 수 있다는 것을 확인했다.
+    이로써 쿼리 저정소 안에 있는 정보를 얻을 수 있다는 것을 확인했다.
 
 - ### b. 쿼리 저장소가 수집하는 정보
-    쿼리 저장소는 상당히 좁지만 매우 풍부한 데이터 집합을 수집합니다. 그림 13-2는 시스템 테이블과 그 관계를 나타냅니다.
+    쿼리 저장소는 상당히 좁지만 매우 풍부한 데이터 집합을 수집한다. 그림 13-2는 시스템 테이블과 그 관계를 나타낸다.
 
     ![XE시작화면](image/13/13_02_QueryStoreSystemViews.png)  
 
     그림 13-2 쿼리 저장소의 시스템 뷰
 
-    쿼리 저장소에 저장된 정보는 두 가지 기본 집합으로 나뉩니다. 쿼리 텍스트, 실행 계획 및 쿼리 컨텍스트 설정을 포함하여 쿼리 자체에 대한 정보가 있습니다. 그런 다음 런타임 간격, 대기 통계 및 쿼리 런타임 통계로 구성된 런타임 정보가 있습니다. 쿼리에 대한 정보부터 시작하여 정보의 각 섹션에 개별적으로 접근할 것입니다.
+    쿼리 저장소에 저장된 정보는 두 가지 기본 집합으로 나뉜다. 
+
+        1. 쿼리 텍스트, 실행 계획 및 쿼리 컨텍스트 설정을 포함하여 쿼리 자체에 대한 정보
+        2. 런타임 간격, 대기 통계 및 쿼리 런타임 통계로 구성된 런타임 정보
+        
+    우리는 첫번째인 쿼리에 대한 정보부터 시작하여 정보의 각 섹션에 개별적으로 접근해 볼것이다.
 
     1. 쿼리 정보
-        쿼리 저장소의 핵심 데이터는 쿼리 자체입니다. 쿼리는 저장 프로시저 또는 일괄 처리의 일부일 수 있지만 독립적입니다. 기본 쿼리 텍스트와 주어진 쿼리를 식별할 수 있는 query_hash 값(쿼리 텍스트의 해시)으로 귀결됩니다. 그런 다음 이 데이터는 쿼리 계획 및 실제 쿼리 텍스트와 결합됩니다. 그림 11-3은 기본 구조와 일부 데이터를 보여줍니다.
+        쿼리 저장소의 핵심 데이터는 쿼리 자체이다. 쿼리는 저장 프로시저 또는 일괄 처리의 일부일 수 있지만 기본적으로 독립적이다. 기본 쿼리 텍스트와 주어진 쿼리를 식별할 수 있는 query_hash 값(쿼리 텍스트의 해시)으로 귀결된다. 그런 다음 이 해시값을 사용해 쿼리 실행계획 과 실제 쿼리 텍스트와 결합된다. 그림 11-3은 기본 구조와 일부 데이터를 보여준다.
 
         ![쿼리저장소의저장되는정보](image/13/13_03_QueryInformationInQS.png)  
 
         그림 13-3 쿼리저장소에 저장되는 정보
 
-        쿼리 저장소가 활성화된 데이터베이스의 기본 파일 그룹에 저장된 시스템 테이블입니다. Management Studio 인터페이스에 내장된 우수한 보고서가 있지만 고유한 쿼리를 작성하여 쿼리 저장소의 정보에 액세스할 수 있습니다. 예를 들어 이 쿼리는 실행 계획과 함께 지정된 저장 프로시저에 대한 모든 쿼리 문을 검색할 수 있습니다.
+        쿼리 저장소의 위치는 해당 데이터베이스의 기본 파일 그룹에 저장된 시스템 테이블이다. Management Studio 인터페이스에 내장된 우수한 보고서가 있지만 T-SQL을 작성하여 쿼리 저장소의 정보에 액세스할 수 있다. 예를 들어 이 쿼리는 실행 계획과 함께 지정된 저장 프로시저에 대한 모든 쿼리 문을 검색할 수 있다.
 
         ```sql
         SELECT qsq.query_id,
@@ -136,14 +150,18 @@ EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 3849;
         이 경우 단일 쿼리인 query_id = 75는 단일 문 저장 프로시저이며 세 가지 다른 plan_id 값으로 식별되는 세 가지 실행 계획이 있습니다. 이 계획은 잠시 후에 살펴보겠습니다. 쿼리 저장소의 결과에서 주목해야 할 또 다른 사항은 텍스트가 저장되는 방식입니다. 이 문은 매개 변수가 있는 저장 프로시저의 일부이므로 T-SQL 텍스트에 사용되는 매개 변수 값이 정의됩니다. 다음은 쿼리 저장소 내에서 명령문의 모습입니다(형식은 그대로 유지).
 
         ```sql
-        (@ReferenceOrderID int)SELECT p.Name,       p.ProductNumber,
-                    th.ReferenceOrderID FROM Production.Product
-        AS p    JOIN Production.TransactionHistory AS
-        th          ON th.ProductID = p.ProductID   WHERE
-        th.ReferenceOrderID = @ReferenceOrderID
+        -- 보기 좋게 정렬. 저장될때는 정렬이 안되어 있음.
+        (@ReferenceOrderID int)
+        SELECT p.Name,
+            p.ProductNumber,
+            th.ReferenceOrderID
+        FROM Production.Product AS p
+            JOIN Production.TransactionHistory AS th
+                ON th.ProductID = p.ProductID   
+        WHERE th.ReferenceOrderID = @ReferenceOrderID
         ```
 
-        문의 시작 부분에 있는 매개변수 정의에 유의하십시오. 앞에서 언급한 대로 실제 저장 프로시저 정의는 다음과 같습니다.
+        쿼리 시작 부분에 있는 매개변수 정의에 유의하자. 앞에서 언급한 대로 실제 저장 프로시저 정의는 다음과 같다.
 
         ```sql
         CREATE OR ALTER PROC dbo.ProductTransactionHistoryByReference (
@@ -152,16 +170,16 @@ EXEC dbo.ProductTransactionHistoryByReference @ReferenceOrderID = 3849;
         AS
         BEGIN
             SELECT p.Name,
-                    p.ProductNumber,
-                    th.ReferenceOrderID
+                p.ProductNumber,
+                th.ReferenceOrderID
             FROM Production.Product AS p
-            JOIN Production.TransactionHistory AS th
-                ON th.ProductID = p.ProductID
+                JOIN Production.TransactionHistory AS th
+                    ON th.ProductID = p.ProductID
             WHERE th.ReferenceOrderID = @ReferenceOrderID;
         END
         ```
 
-        프로시저 내의 문과 쿼리 저장소에 저장된 문은 다릅니다. 이로 인해 쿼리 저장소 내에서 특정 쿼리를 찾으려고 시도할 때 몇 가지 문제가 발생할 수 있습니다. 다음과 같은 다른 예를 살펴보겠습니다.
+        프로시저 내의 문과 쿼리 저장소에 저장된 문은 다릅니다. 이로 인해 쿼리 저장소 내에서 특정 쿼리를 찾으려고 시도할 때 몇 가지 문제가 발생할 수 있다. 다음과 같은 다른 예를 살펴보자.
 
         ```sql
         SELECT a.AddressID,
